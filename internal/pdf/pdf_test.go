@@ -139,3 +139,12 @@ func TestFindInText(t *testing.T) {
 		t.Fatalf("matches = %+v", m)
 	}
 }
+
+// A damaged file makes MuPDF throw, which on Windows exercises the
+// setjmp/longjmp pair behind its fz_try/fz_catch.
+func TestRendererRejectsDamagedFile(t *testing.T) {
+	if r, err := NewRenderer([]byte("%PDF-1.7\n1 0 obj << /Type /Catalog >>\ngarbage")); err == nil {
+		r.Close()
+		t.Fatal("damaged file opened without error")
+	}
+}

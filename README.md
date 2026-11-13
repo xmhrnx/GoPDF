@@ -48,23 +48,16 @@ You can pass a file on the command line (`gopdf report.pdf`).
 
 ### Windows
 
-The prebuilt MuPDF library that go-fitz ships for Windows is compiled for the UCRT C
-runtime, so the app must be linked with a **UCRT** MinGW-w64 toolchain. MSYS2's default
-`mingw64` toolchain links the older `msvcrt` runtime and fails with
-`undefined reference to '__intrinsic_setjmpex'`.
+Install a MinGW-w64 gcc and make sure it is on `PATH`; MSYS2's MINGW64 and UCRT64
+toolchains both work. Then run `giode build windows`.
 
-1. Install the UCRT64 compiler from an MSYS2 shell:
+The MuPDF library go-fitz ships for Windows was compiled against UCRT and calls
+`__intrinsic_setjmpex`, which msvcrt-based toolchains don't define;
+`internal/pdf/setjmp_windows.go` supplies it there by forwarding to msvcrt's `_setjmpex`.
 
-   ```bash
-   pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-pkgconf
-   ```
-
-2. Put `C:\msys64\ucrt64\bin` ahead of `C:\msys64\mingw64\bin` on `PATH` (or build from
-   the "MSYS2 UCRT64" shell), then run `giode build windows`.
-
-If the link fails with `.rsrc merge failure: corrupt .rsrc section`, delete any
-`*.syso` file in the project folder: the giode CLI writes the icon resource there, and a
-stale copy gets linked in alongside the fresh one.
+If the link fails with `.rsrc merge failure: corrupt .rsrc section`, delete every
+`*.syso` file in the project folder: the giode CLI writes the icon resource there, and an
+extra copy linked in alongside it breaks the link.
 
 Cross-compiling for Windows or macOS from Linux needs a matching cross C compiler; see
 `giode.toml` and `giode doctor`.
