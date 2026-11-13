@@ -44,8 +44,30 @@ giode run
 giode build linux
 ```
 
-You can pass a file on the command line (`gopdf report.pdf`). Building for Windows or
-macOS from Linux needs a cross C compiler; see `giode.toml` and `giode doctor`.
+You can pass a file on the command line (`gopdf report.pdf`).
+
+### Windows
+
+The prebuilt MuPDF library that go-fitz ships for Windows is compiled for the UCRT C
+runtime, so the app must be linked with a **UCRT** MinGW-w64 toolchain. MSYS2's default
+`mingw64` toolchain links the older `msvcrt` runtime and fails with
+`undefined reference to '__intrinsic_setjmpex'`.
+
+1. Install the UCRT64 compiler from an MSYS2 shell:
+
+   ```bash
+   pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-pkgconf
+   ```
+
+2. Put `C:\msys64\ucrt64\bin` ahead of `C:\msys64\mingw64\bin` on `PATH` (or build from
+   the "MSYS2 UCRT64" shell), then run `giode build windows`.
+
+If the link fails with `.rsrc merge failure: corrupt .rsrc section`, delete any
+`*.syso` file in the project folder: the giode CLI writes the icon resource there, and a
+stale copy gets linked in alongside the fresh one.
+
+Cross-compiling for Windows or macOS from Linux needs a matching cross C compiler; see
+`giode.toml` and `giode doctor`.
 
 ```bash
 go test ./...

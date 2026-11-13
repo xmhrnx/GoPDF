@@ -22,7 +22,10 @@ min_os = 11
 
 [windows]
 arch = "amd64"
-# cc = "x86_64-w64-mingw32-gcc"  # only for cgo apps linking C libraries
+# MuPDF's prebuilt Windows library targets the UCRT runtime: build with a
+# UCRT MinGW-w64 gcc (MSYS2 UCRT64 on Windows), not MSYS2's MINGW64. Leave
+# cc unset to use the gcc on PATH; on Linux, set a UCRT cross gcc here.
+# cc = "x86_64-w64-mingw32ucrt-gcc"
 
 [windows.installer]
 # per_machine = true         # install for all users into Program Files (asks for admin)
