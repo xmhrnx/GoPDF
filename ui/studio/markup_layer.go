@@ -87,6 +87,20 @@ func paintSignature(p *giode.Painter, a annot.Annotation, z float64, sw float32,
 		}
 		path.Stroke(sw, col)
 	}
+	if len(a.Fills) == 0 {
+		return
+	}
+	path := p.Path()
+	for _, poly := range a.Fills {
+		first := a.StrokePoint(poly[0])
+		path.MoveTo(f(first.X, z), f(first.Y, z))
+		for _, u := range poly[1:] {
+			pt := a.StrokePoint(u)
+			path.LineTo(f(pt.X, z), f(pt.Y, z))
+		}
+		path.Close()
+	}
+	path.Fill(col)
 }
 
 func f(v, z float64) float32 { return float32(v * z) }

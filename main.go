@@ -29,13 +29,17 @@ func main() {
 	if err := theme.RegisterIcons(assets.Icons, "icons"); err != nil {
 		log.Fatal(err)
 	}
+	scripts, err := theme.RegisterScriptFonts(assets.SignatureFonts, "signature-fonts")
+	if err != nil {
+		log.Fatal(err)
+	}
 	theme.Apply(giode.ModeLight)
 
 	logo, err := png.Decode(bytes.NewReader(assets.AppIcon))
 	if err != nil {
 		log.Fatal(err)
 	}
-	app := studio.New(logo)
+	app := studio.New(logo, scripts)
 	win := giode.New(giode.Config{
 		Title:      "GoPDF",
 		Size:       image.Pt(1360, 860),

@@ -84,16 +84,16 @@ func (a Annotation) Degenerate() bool {
 	}
 }
 
-// NewSignature returns a signature of strokes (unit coordinates, aspect
-// width/height) centered at p, s.Size points wide.
-func NewSignature(id int64, page int, p geom.Point, strokes [][]geom.Point, aspect float64, s Style) Annotation {
+// NewSignature returns a signature of strokes and fills (unit
+// coordinates, aspect width/height) centered at p, s.Size points wide.
+func NewSignature(id int64, page int, p geom.Point, strokes, fills [][]geom.Point, aspect float64, s Style) Annotation {
 	w := s.Size
 	h := w / aspect
 	a := Annotation{
 		ID: id, Page: page, Kind: Signature, Color: s.Color, Width: s.Width, Opacity: 1,
 		Points: []geom.Point{{X: p.X - w/2, Y: p.Y - h/2}, {X: p.X + w/2, Y: p.Y + h/2}},
 	}
-	a.Strokes = strokes
+	a.Strokes, a.Fills = strokes, fills
 	return a.Clone()
 }
 

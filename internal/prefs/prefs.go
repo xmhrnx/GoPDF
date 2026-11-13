@@ -14,8 +14,9 @@ import (
 
 // Prefs are the remembered choices.
 type Prefs struct {
-	Styles    map[string]Style `json:"styles"`    // by annot.Kind name
-	Signature string           `json:"signature"` // ID of the signature to place
+	Styles        map[string]Style `json:"styles"`        // by annot.Kind name
+	Signature     string           `json:"signature"`     // ID of the signature to place
+	SignatureFont string           `json:"signatureFont"` // typeface last used for a typed signature
 }
 
 // Style is an annot.Style as stored.

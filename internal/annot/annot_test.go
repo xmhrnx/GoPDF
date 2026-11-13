@@ -51,7 +51,7 @@ func TestRotatePage(t *testing.T) {
 func TestSignaturePlacement(t *testing.T) {
 	st := DefaultStyleFor(Signature)
 	strokes := [][]geom.Point{{{X: 0, Y: 0}, {X: 1, Y: 1}}}
-	a := NewSignature(1, 0, geom.Point{X: 100, Y: 100}, strokes, 3, st)
+	a := NewSignature(1, 0, geom.Point{X: 100, Y: 100}, strokes, nil, 3, st)
 	if b := a.Box(); b.Dx() != 180 || b.Dy() != 60 {
 		t.Fatalf("box = %v", b)
 	}

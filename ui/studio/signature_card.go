@@ -73,5 +73,17 @@ func (c *signatureCard) content(st giode.PressState) giode.Element {
 			}
 			path.Stroke(1.5, "#1e293b")
 		}
+		if len(sig.Fills) == 0 {
+			return
+		}
+		path := p.Path()
+		for _, poly := range sig.Fills {
+			path.MoveTo(ox+float32(poly[0].X)*bw, oy+float32(poly[0].Y)*bh)
+			for _, u := range poly[1:] {
+				path.LineTo(ox+float32(u.X)*bw, oy+float32(u.Y)*bh)
+			}
+			path.Close()
+		}
+		path.Fill("#1e293b")
 	}))
 }

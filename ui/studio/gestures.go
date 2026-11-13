@@ -69,10 +69,10 @@ func (s *Studio) placeText(page int, p geom.Point) {
 func (s *Studio) placeSignature(page int, p geom.Point) {
 	sig, ok := s.signatures.active(s)
 	if !ok {
-		s.ui.signaturePad.show()
+		s.ui.signer.show()
 		return
 	}
-	a := annot.NewSignature(editor.NewID(), page, p, sig.Strokes, sig.Aspect, s.memory.style(annot.Signature))
+	a := annot.NewSignature(editor.NewID(), page, p, sig.Strokes, sig.Fills, sig.Aspect, s.memory.style(annot.Signature))
 	s.keepOnPage(&a)
 	s.doc.AddAnnotation(a)
 	s.tool = ToolSelect

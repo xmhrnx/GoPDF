@@ -13,8 +13,10 @@ and window buttons.
   the mouse, or the arrow keys: 1 pt, 10 pt with Shift), restyle it, edit its text, copy,
   cut, paste, duplicate or delete it. On save the markup is drawn into the page content, so
   every PDF viewer shows it.
-- **Sign:** draw a signature once, keep it, and place it in any document with the
-  Signature tool. Several signatures can be saved; pick the one to use in the inspector.
+- **Sign:** draw a signature, or type your name and pick one of six script typefaces;
+  keep it and place it in any document with the Signature tool. Typed signatures are saved
+  as vector outlines, so they look the same in every PDF viewer without embedding a font.
+  Several signatures can be saved; pick the one to use in the inspector.
 - **Remembers:** the last color, stroke width, font size and signature size used for each
   kind of markup, between runs.
 - **Organize:** rotate, duplicate, reorder, insert blank pages and delete pages. Markup
@@ -112,4 +114,6 @@ keeps undo cheap and the interface responsive.
 
 Rendering: [MuPDF](https://mupdf.com) through [go-fitz](https://github.com/gen2brain/go-fitz)
 (AGPL). Editing: [pdfcpu](https://github.com/pdfcpu/pdfcpu) (Apache 2.0). Icons:
-[Lucide](https://lucide.dev) (ISC). Typeface: [Inter](https://rsms.me/inter/) (OFL).
+[Lucide](https://lucide.dev) (ISC). Typefaces: [Inter](https://rsms.me/inter/), and Great
+Vibes, Allura, Alex Brush, Sacramento, Mrs Saint Delafield and Cedarville Cursive from
+[Google Fonts](https://fonts.google.com) (all SIL OFL).

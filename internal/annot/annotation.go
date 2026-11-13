@@ -29,19 +29,28 @@ type Annotation struct {
 	// Strokes are a signature's pen strokes, in unit coordinates of
 	// its box (0,0 top-left to 1,1 bottom-right).
 	Strokes [][]geom.Point
+	// Fills are a typed signature's glyph outlines, closed polygons in
+	// the same unit coordinates, filled with the non-zero rule.
+	Fills [][]geom.Point
 }
 
 // Clone returns a deep copy of a.
 func (a Annotation) Clone() Annotation {
 	a.Points = append([]geom.Point(nil), a.Points...)
-	if a.Strokes != nil {
-		strokes := make([][]geom.Point, len(a.Strokes))
-		for i, st := range a.Strokes {
-			strokes[i] = append([]geom.Point(nil), st...)
-		}
-		a.Strokes = strokes
-	}
+	a.Strokes = clonePaths(a.Strokes)
+	a.Fills = clonePaths(a.Fills)
 	return a
+}
+
+func clonePaths(paths [][]geom.Point) [][]geom.Point {
+	if paths == nil {
+		return nil
+	}
+	out := make([][]geom.Point, len(paths))
+	for i, p := range paths {
+		out[i] = append([]geom.Point(nil), p...)
+	}
+	return out
 }
 
 // Lines returns the text split into lines.

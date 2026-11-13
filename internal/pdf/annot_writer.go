@@ -57,6 +57,7 @@ func writeAnnotation(cb *contentBuilder, a annot.Annotation) {
 			cb.polyline(pts)
 			cb.op("S")
 		}
+		writeFills(cb, a)
 	case a.Kind.Freehand():
 		cb.polyline(a.Points)
 		cb.op("S")
@@ -93,6 +94,23 @@ func writeArrow(cb *contentBuilder, a annot.Annotation) {
 		cb.polyline([]geom.Point{p, to})
 		cb.op("S")
 	}
+}
+
+// writeFills paints a typed signature's glyph outlines as one path, so
+// the non-zero rule keeps the holes in letters like "o" open.
+func writeFills(cb *contentBuilder, a annot.Annotation) {
+	if len(a.Fills) == 0 {
+		return
+	}
+	for _, poly := range a.Fills {
+		pts := make([]geom.Point, len(poly))
+		for i, u := range poly {
+			pts[i] = a.StrokePoint(u)
+		}
+		cb.polyline(pts)
+		cb.op("h")
+	}
+	cb.op("f")
 }
 
 // ArrowHead returns the two outer points of an arrow head at to, for a

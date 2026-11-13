@@ -153,7 +153,7 @@ func TestFlattenSignature(t *testing.T) {
 	strokes := [][]geom.Point{{{X: 0, Y: 0.5}, {X: 1, Y: 0.5}}}
 	st := annot.DefaultStyleFor(annot.Signature)
 	st.Width = 6
-	sig := annot.NewSignature(1, 0, geom.Point{X: 300, Y: 400}, strokes, 4, st)
+	sig := annot.NewSignature(1, 0, geom.Point{X: 300, Y: 400}, strokes, nil, 4, st)
 	out, err := Flatten(samplePDF(1), []annot.Annotation{sig})
 	if err != nil {
 		t.Fatal(err)
@@ -170,5 +170,36 @@ func TestFlattenSignature(t *testing.T) {
 	// The stroke crosses the box's middle: (300, 400) is inked.
 	if c := img.RGBAAt(300, 400); c.R > 120 {
 		t.Fatalf("pixel on the signature = %v, want dark ink", c)
+	}
+}
+
+func TestFlattenTypedSignature(t *testing.T) {
+	// A square ring: outer square, inner square, filled non-zero with
+	// opposite windings, so the middle stays empty.
+	fills := [][]geom.Point{
+		{{X: 0, Y: 0}, {X: 1, Y: 0}, {X: 1, Y: 1}, {X: 0, Y: 1}},
+		{{X: 0.3, Y: 0.3}, {X: 0.3, Y: 0.7}, {X: 0.7, Y: 0.7}, {X: 0.7, Y: 0.3}},
+	}
+	st := annot.DefaultStyleFor(annot.Signature)
+	st.Size = 100
+	sig := annot.NewSignature(1, 0, geom.Point{X: 300, Y: 400}, nil, fills, 1, st)
+	out, err := Flatten(samplePDF(1), []annot.Annotation{sig})
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := NewRenderer(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	img, err := r.Render(0, 72)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := img.RGBAAt(260, 360); c.R > 120 {
+		t.Fatalf("ring pixel = %v, want ink", c)
+	}
+	if c := img.RGBAAt(300, 400); c.R < 200 {
+		t.Fatalf("hole pixel = %v, want paper", c)
 	}
 }

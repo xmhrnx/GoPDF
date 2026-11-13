@@ -14,6 +14,7 @@ import (
 	"gopdf/internal/editor"
 	"gopdf/internal/pagecache"
 	"gopdf/internal/pdf"
+	"gopdf/ui/theme"
 )
 
 // Cache sizes: rendered pages are large, thumbnails small.
@@ -26,6 +27,7 @@ const (
 type Studio struct {
 	win     *giode.App
 	logo    image.Image
+	scripts []theme.ScriptFont // typefaces for typed signatures
 	recents *recentFiles
 	toasts  *toaster.Toaster
 
@@ -51,10 +53,10 @@ type Studio struct {
 	ui *views
 }
 
-// New returns the studio, showing logo as the app's mark; Attach it to a
-// window before running it.
-func New(logo image.Image) *Studio {
-	s := &Studio{logo: logo, tool: ToolSelect, view: newViewState(), clipboard: &clipboard{}}
+// New returns the studio, showing logo as the app's mark and offering
+// scripts for typed signatures; Attach it to a window before running it.
+func New(logo image.Image, scripts []theme.ScriptFont) *Studio {
+	s := &Studio{logo: logo, scripts: scripts, tool: ToolSelect, view: newViewState(), clipboard: &clipboard{}}
 	s.memory = newMemory()
 	s.signatures = newSignatureBook()
 	s.toasts = giode.Toaster().Placement(giode.ToastBottomEnd).Max(3).
