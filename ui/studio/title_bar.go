@@ -29,7 +29,7 @@ func newTitleBar(s *Studio) *titleBar {
 		BorderWidth: 1, BorderColor: theme.Border, FontSize: 12.5,
 	}).
 		Variant(platform.TitleBarVariant).
-		Icon(logoBadge(22)).
+		Icon(appLogo(s.logo, 24)).
 		Leading(
 			components.NewMenuButton("File", m.file),
 			components.NewMenuButton("Edit", m.edit),

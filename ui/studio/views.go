@@ -20,15 +20,16 @@ type views struct {
 	welcome   *welcomeScreen
 	pageMenu  *pageMenu
 
-	password    *passwordDialog
-	unsaved     *unsavedDialog
-	properties  *propertiesDialog
-	watermark   *watermarkDialog
-	pageNumbers *pageNumbersDialog
-	security    *securityDialog
-	extract     *extractDialog
-	split       *splitDialog
-	shortcuts   *shortcutsDialog
+	password     *passwordDialog
+	unsaved      *unsavedDialog
+	properties   *propertiesDialog
+	watermark    *watermarkDialog
+	pageNumbers  *pageNumbersDialog
+	security     *securityDialog
+	extract      *extractDialog
+	split        *splitDialog
+	shortcuts    *shortcutsDialog
+	signaturePad *signaturePadDialog
 }
 
 func newViews(s *Studio) *views {
@@ -52,6 +53,7 @@ func newViews(s *Studio) *views {
 	v.extract = newExtractDialog(s)
 	v.split = newSplitDialog(s)
 	v.shortcuts = newShortcutsDialog(s)
+	v.signaturePad = newSignaturePadDialog(s)
 	return v
 }
 
@@ -90,7 +92,7 @@ func (v *views) overlays() []giode.Element {
 		dropOverlay(v.s.dragOver),
 		v.pageMenu.menu,
 		v.password.dialog, v.unsaved.dialog, v.properties.dialog, v.watermark.dialog,
-		v.pageNumbers.dialog, v.security.dialog, v.extract.dialog, v.split.dialog, v.shortcuts.dialog,
+		v.pageNumbers.dialog, v.security.dialog, v.extract.dialog, v.split.dialog, v.shortcuts.dialog, v.signaturePad.dialog,
 		v.s.toasts,
 	}
 }

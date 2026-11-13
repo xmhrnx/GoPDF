@@ -3,6 +3,7 @@
 package studio
 
 import (
+	"image"
 	"net/url"
 
 	"github.com/xmhrnx/giode"
@@ -24,6 +25,7 @@ const (
 // Studio is the application: it owns the open document and every view.
 type Studio struct {
 	win     *giode.App
+	logo    image.Image
 	recents *recentFiles
 	toasts  *toaster.Toaster
 
@@ -35,20 +37,26 @@ type Studio struct {
 	outline  []pdf.OutlineItem
 	busy     string // what runs in the background, "" when idle
 
-	tool     Tool
-	styles   map[Tool]annot.Style // last style used with each tool
-	selected int64                // selected annotation ID, 0 for none
-	drawing  *annot.Annotation
-	moving   *moveGesture
-	view     viewState
-	dragOver bool
+	tool       Tool
+	memory     *memory        // per-kind styles and the active signature, kept on disk
+	signatures *signatureBook // saved signatures
+	clipboard  *clipboard     // copied markup
+	nudging    nudgeState     // groups arrow-key moves into one undo step
+	selected   int64          // selected annotation ID, 0 for none
+	drawing    *annot.Annotation
+	moving     *moveGesture
+	view       viewState
+	dragOver   bool
 
 	ui *views
 }
 
-// New returns the studio; Attach it to a window before running it.
-func New() *Studio {
-	s := &Studio{tool: ToolSelect, styles: defaultToolStyles(), view: newViewState()}
+// New returns the studio, showing logo as the app's mark; Attach it to a
+// window before running it.
+func New(logo image.Image) *Studio {
+	s := &Studio{logo: logo, tool: ToolSelect, view: newViewState(), clipboard: &clipboard{}}
+	s.memory = newMemory()
+	s.signatures = newSignatureBook()
 	s.toasts = giode.Toaster().Placement(giode.ToastBottomEnd).Max(3).
 		Inset(giode.Inset{Bottom: 36, Right: 8})
 	s.recents = newRecentFiles()
@@ -63,6 +71,8 @@ func (s *Studio) Attach(win *giode.App) {
 	s.thumbs = pagecache.New(thumbCacheLimit, invalidate, properties.ForgetImage)
 	s.ui = newViews(s)
 	s.recents.load(s)
+	s.memory.load(s)
+	s.signatures.load(s)
 }
 
 // View is the window's view function.

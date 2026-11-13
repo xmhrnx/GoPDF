@@ -17,7 +17,7 @@ func newPageMenuBar(s *Studio) *menu.Menu {
 		IconItem(theme.MenuIcon("rotate-ccw"), "Rotate Counter-clockwise", cur(func(p int) { s.rotatePage(p, false) })).Shortcut("Mod+Shift+R").
 		SubMenu("Rotate All Pages", rotateAll).
 		Separator().
-		IconItem(theme.MenuIcon("copy"), "Duplicate Page", cur(s.duplicatePage)).Shortcut("Mod+D").
+		IconItem(theme.MenuIcon("copy"), "Duplicate Page", cur(s.duplicatePage)).
 		IconItem(theme.MenuIcon("file-plus-2"), "Insert Blank Page After", cur(s.insertBlankPage)).
 		IconItem(theme.MenuIcon("arrow-up"), "Move Page Up", cur(func(p int) { s.movePage(p, p-1) })).
 		IconItem(theme.MenuIcon("arrow-down"), "Move Page Down", cur(func(p int) { s.movePage(p, p+1) })).

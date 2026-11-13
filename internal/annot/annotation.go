@@ -26,11 +26,21 @@ type Annotation struct {
 	Text     string
 	FontSize float64
 	Filled   bool
+	// Strokes are a signature's pen strokes, in unit coordinates of
+	// its box (0,0 top-left to 1,1 bottom-right).
+	Strokes [][]geom.Point
 }
 
 // Clone returns a deep copy of a.
 func (a Annotation) Clone() Annotation {
 	a.Points = append([]geom.Point(nil), a.Points...)
+	if a.Strokes != nil {
+		strokes := make([][]geom.Point, len(a.Strokes))
+		for i, st := range a.Strokes {
+			strokes[i] = append([]geom.Point(nil), st...)
+		}
+		a.Strokes = strokes
+	}
 	return a
 }
 
@@ -45,8 +55,11 @@ func (a Annotation) Bounds() geom.Rect {
 	if len(a.Points) == 0 {
 		return geom.Rect{}
 	}
-	if a.Kind == Text {
+	switch a.Kind {
+	case Text:
 		return a.textBounds()
+	case Signature:
+		return a.Box()
 	}
 	r := geom.Rect{Min: a.Points[0], Max: a.Points[0]}
 	for _, p := range a.Points[1:] {
@@ -74,6 +87,13 @@ func (a *Annotation) Translate(d geom.Point) {
 	for i := range a.Points {
 		a.Points[i] = a.Points[i].Add(d)
 	}
+}
+
+// StrokePoint maps a point of a signature stroke (unit coordinates) into
+// display space.
+func (a Annotation) StrokePoint(u geom.Point) geom.Point {
+	b := a.Box()
+	return geom.Point{X: b.Min.X + u.X*b.Dx(), Y: b.Min.Y + u.Y*b.Dy()}
 }
 
 // Box returns the normalized rectangle of a boxed annotation.

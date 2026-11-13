@@ -17,6 +17,7 @@ const (
 	Arrow
 	Text
 	Whiteout
+	Signature
 )
 
 var kindNames = [...]string{
@@ -29,7 +30,11 @@ var kindNames = [...]string{
 	Arrow:     "Arrow",
 	Text:      "Text",
 	Whiteout:  "Whiteout",
+	Signature: "Signature",
 }
+
+// Kinds lists every kind, for settings stored per kind.
+var Kinds = []Kind{Pen, Marker, Highlight, Rect, Ellipse, Line, Arrow, Text, Whiteout, Signature}
 
 // String returns the kind's display name.
 func (k Kind) String() string {
@@ -46,6 +51,10 @@ func (k Kind) Freehand() bool { return k == Pen || k == Marker }
 func (k Kind) Boxed() bool {
 	return k == Highlight || k == Rect || k == Ellipse || k == Whiteout
 }
+
+// Placed reports whether the kind is placed with a click rather than
+// drawn with a drag.
+func (k Kind) Placed() bool { return k == Text || k == Signature }
 
 // Linear reports whether the kind is a straight segment.
 func (k Kind) Linear() bool { return k == Line || k == Arrow }

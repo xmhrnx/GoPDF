@@ -148,3 +148,27 @@ func TestRendererRejectsDamagedFile(t *testing.T) {
 		t.Fatal("damaged file opened without error")
 	}
 }
+
+func TestFlattenSignature(t *testing.T) {
+	strokes := [][]geom.Point{{{X: 0, Y: 0.5}, {X: 1, Y: 0.5}}}
+	st := annot.DefaultStyleFor(annot.Signature)
+	st.Width = 6
+	sig := annot.NewSignature(1, 0, geom.Point{X: 300, Y: 400}, strokes, 4, st)
+	out, err := Flatten(samplePDF(1), []annot.Annotation{sig})
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := NewRenderer(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	img, err := r.Render(0, 72)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The stroke crosses the box's middle: (300, 400) is inked.
+	if c := img.RGBAAt(300, 400); c.R > 120 {
+		t.Fatalf("pixel on the signature = %v, want dark ink", c)
+	}
+}

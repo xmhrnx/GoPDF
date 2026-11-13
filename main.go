@@ -2,7 +2,9 @@
 package main
 
 import (
+	"bytes"
 	"image"
+	"image/png"
 	"log"
 	"os"
 	"runtime/debug"
@@ -29,7 +31,11 @@ func main() {
 	}
 	theme.Apply(giode.ModeLight)
 
-	app := studio.New()
+	logo, err := png.Decode(bytes.NewReader(assets.AppIcon))
+	if err != nil {
+		log.Fatal(err)
+	}
+	app := studio.New(logo)
 	win := giode.New(giode.Config{
 		Title:      "GoPDF",
 		Size:       image.Pt(1360, 860),

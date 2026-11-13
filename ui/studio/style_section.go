@@ -14,8 +14,9 @@ import (
 )
 
 var (
-	strokeWidths = []float64{1, 2, 4, 8}
-	fontSizes    = []float64{10, 12, 14, 16, 20, 24, 32, 48, 64}
+	signatureSizes = []float64{120, 180, 240, 320}
+	strokeWidths   = []float64{1, 2, 4, 8}
+	fontSizes      = []float64{10, 12, 14, 16, 20, 24, 32, 48, 64}
 )
 
 // styleSection edits color, stroke, fill and font size.
@@ -25,6 +26,8 @@ type styleSection struct {
 	width    *segmented.Control
 	fill     *toggle.Switch
 	font     *dropdown.Select
+	sigSize  *segmented.Control
+	copy     *giode.ButtonElement
 	remove   *giode.ButtonElement
 }
 
@@ -46,6 +49,8 @@ func newStyleSection(s *Studio) *styleSection {
 	}
 	st.font = giode.Input.Select(giode.Styles{Background: theme.Surface, Color: theme.TextColor, BorderColor: theme.Border, BorderRadius: theme.Radius, Width: -1}, sizes...).
 		OnChange(func(i int) { s.setFontSize(fontSizes[i]) })
+	st.sigSize = components.NewSegmented("S", "M", "L", "XL").OnChange(func(i int) { s.setSignatureSize(signatureSizes[i]) })
+	st.copy = components.NewSecondaryButton("Duplicate", s.duplicateSelection).Icon(theme.Icon("copy", 15, ""))
 	st.remove = components.NewSecondaryButton("Delete", s.deleteSelected).Icon(theme.Icon("trash-2", 15, ""))
 	return st
 }
@@ -57,9 +62,10 @@ func (st *styleSection) current() annot.Style {
 		if a.Kind == annot.Marker {
 			w = a.Width / 5
 		}
-		return annot.Style{Color: a.Color, Width: w, FontSize: a.FontSize, Filled: a.Filled}
+		return annot.Style{Color: a.Color, Width: w, FontSize: a.FontSize, Filled: a.Filled, Size: a.Box().Dx()}
 	}
-	return st.s.toolStyle(st.s.tool)
+	k, _ := st.s.styledKind()
+	return st.s.memory.style(k)
 }
 
 func (st *styleSection) color() annot.Color { return st.current().Color }
@@ -75,7 +81,7 @@ func (st *styleSection) View(kind annot.Kind) giode.Element {
 		}
 		kids = append(kids, components.Field("Color", giode.Row(giode.Styles{Gap: 2, Width: -1}, views...)))
 	}
-	if kind.Freehand() || kind.Linear() || kind == annot.Rect || kind == annot.Ellipse {
+	if kind.Freehand() || kind.Linear() || kind == annot.Rect || kind == annot.Ellipse || kind == annot.Signature {
 		st.width.SetSelected(nearest(strokeWidths, cur.Width))
 		kids = append(kids, components.Field("Stroke", st.width))
 	}
@@ -87,8 +93,12 @@ func (st *styleSection) View(kind annot.Kind) giode.Element {
 		st.font.SetSelected(nearest(fontSizes, cur.FontSize))
 		kids = append(kids, components.Field("Font size", st.font))
 	}
+	if kind == annot.Signature {
+		st.sigSize.SetSelected(nearest(signatureSizes, cur.Size))
+		kids = append(kids, components.Field("Size", st.sigSize))
+	}
 	if _, ok := st.s.selectedAnnot(); ok {
-		kids = append(kids, st.remove)
+		kids = append(kids, giode.Row(giode.Styles{Gap: 8}, st.copy, st.remove))
 	}
 	if len(kids) == 0 {
 		kids = append(kids, giode.Text("Covers content with white when the file is saved. It hides the content from view; it does not remove it.", theme.Caption))

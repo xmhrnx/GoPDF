@@ -2,8 +2,9 @@ package studio
 
 import "gopdf/internal/annot"
 
-// The style setters change the active tool's style and, when markup is
-// selected, the selection too (as one undoable change).
+// The style setters change the style remembered for the kind being
+// styled (the selection's, or the active tool's) and, when markup is
+// selected, the selection too, as one undoable change.
 
 func (s *Studio) setColor(c annot.Color) {
 	s.editStyle(func(st *annot.Style) { st.Color = c })
@@ -32,10 +33,20 @@ func (s *Studio) setStrokeWidth(w float64) {
 }
 
 func (s *Studio) setFontSize(size float64) {
+	size = min(max(size, annot.MinFontSize), annot.MaxFontSize)
 	s.editStyle(func(st *annot.Style) { st.FontSize = size })
 	s.updateSelected(func(a *annot.Annotation) bool {
 		a.FontSize = size
 		return a.Kind == annot.Text
+	})
+}
+
+func (s *Studio) setSignatureSize(w float64) {
+	w = min(max(w, annot.MinSignatureSize), annot.MaxSignatureSize)
+	s.editStyle(func(st *annot.Style) { st.Size = w })
+	s.updateSelected(func(a *annot.Annotation) bool {
+		a.Resize(w)
+		return a.Kind == annot.Signature
 	})
 }
 
@@ -60,27 +71,25 @@ func (s *Studio) updateSelected(change func(*annot.Annotation) bool) {
 	}
 }
 
-// editStyle changes the style of the active tool.
+// styledKind is the kind the style controls act on: the selection's,
+// or the drawing tool's.
+func (s *Studio) styledKind() (annot.Kind, bool) {
+	if a, ok := s.selectedAnnot(); ok {
+		return a.Kind, true
+	}
+	if s.tool != ToolSelect {
+		return s.tool.Kind(), true
+	}
+	return 0, false
+}
+
+// editStyle changes and remembers the style of the kind being styled.
 func (s *Studio) editStyle(change func(*annot.Style)) {
-	st := s.toolStyle(s.tool)
+	k, ok := s.styledKind()
+	if !ok {
+		return
+	}
+	st := s.memory.style(k)
 	change(&st)
-	s.styles[s.tool] = st
-}
-
-// toolStyle returns the style tool draws with.
-func (s *Studio) toolStyle(t Tool) annot.Style {
-	if st, ok := s.styles[t]; ok {
-		return st
-	}
-	return annot.DefaultStyle
-}
-
-// defaultToolStyles gives the highlighters a highlighter color.
-func defaultToolStyles() map[Tool]annot.Style {
-	yellow := annot.DefaultStyle
-	yellow.Color = annot.Swatches[3]
-	return map[Tool]annot.Style{
-		Tool(annot.Marker):    yellow,
-		Tool(annot.Highlight): yellow,
-	}
+	s.memory.setStyle(s, k, st)
 }

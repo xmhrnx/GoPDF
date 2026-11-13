@@ -45,7 +45,7 @@ func (w *welcomeScreen) content() giode.Element {
 
 func (w *welcomeScreen) hero() giode.Element {
 	return giode.Stack(giode.Styles{Width: -1, Align: giode.AlignCenter, Gap: 14},
-		giode.Box(giode.Styles{BorderRadius: 18, BoxShadow: giode.BoxShadow{Y: 10, Blur: 30, Color: "#4f46e555"}}, logoBadge(64)),
+		appLogo(w.s.logo, 96),
 		giode.Text("GoPDF", theme.Display),
 		giode.Text("Annotate, organize, merge and protect your PDFs.", giode.Styles{FontSize: 15, Color: theme.Muted, TextAlign: giode.TextAlignCenter}),
 		giode.Box(giode.Styles{Padding: giode.Inset{Top: 10}}, w.open),

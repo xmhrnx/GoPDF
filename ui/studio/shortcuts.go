@@ -6,6 +6,16 @@ import (
 	"gopdf/ui/theme"
 )
 
+// nudgeKeys move the selection with the arrow keys; Shift moves further.
+var nudgeKeys = []struct {
+	spec   string
+	dx, dy float64
+	large  bool
+}{
+	{"Left", -1, 0, false}, {"Right", 1, 0, false}, {"Up", 0, -1, false}, {"Down", 0, 1, false},
+	{"Shift+Left", -1, 0, true}, {"Shift+Right", 1, 0, true}, {"Shift+Up", 0, -1, true}, {"Shift+Down", 0, 1, true},
+}
+
 // registerShortcuts installs the keyboard shortcuts for this frame.
 func registerShortcuts(s *Studio) {
 	cur := func(fn func(int)) func() {
@@ -40,8 +50,14 @@ func registerShortcuts(s *Studio) {
 		giode.Shortcut("PageUp", s.ui.unlessTyping(func() { s.goToPage(s.view.current - 1) })),
 		giode.Shortcut("Mod+R", cur(func(p int) { s.rotatePage(p, true) })),
 		giode.Shortcut("Mod+Shift+R", cur(func(p int) { s.rotatePage(p, false) })),
-		giode.Shortcut("Mod+D", cur(s.duplicatePage)),
+		giode.Shortcut("Mod+D", s.duplicate),
+		giode.Shortcut("Mod+C", s.ui.unlessTyping(s.copySelection)),
+		giode.Shortcut("Mod+X", s.ui.unlessTyping(s.cutSelection)),
+		giode.Shortcut("Mod+V", s.ui.unlessTyping(s.paste)),
 		giode.Shortcut("Mod+Backspace", cur(s.deletePage)),
+	}
+	for _, n := range nudgeKeys {
+		list = append(list, giode.Shortcut(n.spec, s.ui.unlessTyping(func() { s.nudge(n.dx, n.dy, n.large) })))
 	}
 	if s.hasDoc() {
 		for _, d := range tools {

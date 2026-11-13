@@ -22,6 +22,8 @@ func (s *Studio) cursor() giode.Cursor {
 		return giode.CursorDefault
 	case s.tool.Kind() == annot.Text:
 		return giode.CursorText
+	case s.tool.Kind() == annot.Signature:
+		return giode.CursorPointer
 	default:
 		return giode.CursorCrosshair
 	}
@@ -39,6 +41,8 @@ func (s *Studio) clickPage(page int, p geom.Point) {
 		s.selectAnnotation(s.hitTest(page, p))
 	case s.tool.Kind() == annot.Text:
 		s.placeText(page, p)
+	case s.tool.Kind() == annot.Signature:
+		s.placeSignature(page, p)
 	}
 }
 
@@ -52,12 +56,27 @@ func (s *Studio) hitTest(page int, p geom.Point) int64 {
 
 // placeText adds a text box at p and opens it for typing.
 func (s *Studio) placeText(page int, p geom.Point) {
-	a := annot.New(editor.NewID(), page, annot.Text, p, s.toolStyle(Tool(annot.Text)))
+	a := annot.New(editor.NewID(), page, annot.Text, p, s.memory.style(annot.Text))
 	s.doc.AddAnnotation(a)
 	s.tool = ToolSelect
 	s.selectAnnotation(a.ID)
 	s.view.inspector = true
 	s.ui.inspector.editText()
+}
+
+// placeSignature puts the active signature centered at p, or asks for
+// one when none is saved yet.
+func (s *Studio) placeSignature(page int, p geom.Point) {
+	sig, ok := s.signatures.active(s)
+	if !ok {
+		s.ui.signaturePad.show()
+		return
+	}
+	a := annot.NewSignature(editor.NewID(), page, p, sig.Strokes, sig.Aspect, s.memory.style(annot.Signature))
+	s.keepOnPage(&a)
+	s.doc.AddAnnotation(a)
+	s.tool = ToolSelect
+	s.selectAnnotation(a.ID)
 }
 
 // startGesture begins drawing or moving at p on page.
@@ -80,8 +99,10 @@ func (s *Studio) startGesture(page int, p geom.Point) {
 		s.moving = &moveGesture{page: page, start: p, origin: a.Clone()}
 	case s.tool.Kind() == annot.Text:
 		s.placeText(page, p)
+	case s.tool.Kind() == annot.Signature:
+		s.placeSignature(page, p)
 	default:
-		a := annot.New(editor.NewID(), page, s.tool.Kind(), p, s.toolStyle(s.tool))
+		a := annot.New(editor.NewID(), page, s.tool.Kind(), p, s.memory.style(s.tool.Kind()))
 		s.drawing = &a
 	}
 }

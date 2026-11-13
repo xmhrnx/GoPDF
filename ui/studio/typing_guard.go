@@ -17,7 +17,7 @@ func (v *views) typing() bool {
 
 func (v *views) dialogOpen() bool {
 	return v.password.open || v.unsaved.open || v.properties.open || v.watermark.open ||
-		v.pageNumbers.open || v.security.open || v.extract.open || v.split.open || v.shortcuts.open
+		v.pageNumbers.open || v.security.open || v.extract.open || v.split.open || v.shortcuts.open || v.signaturePad.open
 }
 
 // unlessTyping wraps a plain-key shortcut action with the typing guard.

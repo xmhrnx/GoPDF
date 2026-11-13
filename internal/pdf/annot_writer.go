@@ -45,6 +45,18 @@ func writeAnnotation(cb *contentBuilder, a annot.Annotation) {
 	switch {
 	case a.Kind == annot.Text:
 		writeText(cb, a)
+	case a.Kind == annot.Signature:
+		for _, st := range a.Strokes {
+			if len(st) < 2 {
+				continue
+			}
+			pts := make([]geom.Point, len(st))
+			for i, u := range st {
+				pts[i] = a.StrokePoint(u)
+			}
+			cb.polyline(pts)
+			cb.op("S")
+		}
 	case a.Kind.Freehand():
 		cb.polyline(a.Points)
 		cb.op("S")

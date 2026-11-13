@@ -32,4 +32,5 @@ var tools = []toolDef{
 	{Tool(annot.Line), "minus", "Line", "L"},
 	{Tool(annot.Arrow), "move-up-right", "Arrow", "A"},
 	{Tool(annot.Whiteout), "eraser", "Whiteout", "W"},
+	{Tool(annot.Signature), "signature", "Signature", "S"},
 }

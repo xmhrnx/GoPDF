@@ -10,7 +10,7 @@ const minHitSlop = 4.0
 func (a Annotation) Hit(p geom.Point) bool {
 	slop := max(minHitSlop, a.Width)
 	switch {
-	case a.Kind == Text, a.Kind == Highlight, a.Kind == Whiteout, a.Filled:
+	case a.Kind.Placed(), a.Kind == Highlight, a.Kind == Whiteout, a.Filled:
 		return a.Bounds().Inset(slop / 2).Contains(p)
 	case a.Kind.Boxed():
 		return hitBoxOutline(a.Box(), p, slop)

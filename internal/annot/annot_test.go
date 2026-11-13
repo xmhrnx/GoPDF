@@ -47,3 +47,34 @@ func TestRotatePage(t *testing.T) {
 		}
 	}
 }
+
+func TestSignaturePlacement(t *testing.T) {
+	st := DefaultStyleFor(Signature)
+	strokes := [][]geom.Point{{{X: 0, Y: 0}, {X: 1, Y: 1}}}
+	a := NewSignature(1, 0, geom.Point{X: 100, Y: 100}, strokes, 3, st)
+	if b := a.Box(); b.Dx() != 180 || b.Dy() != 60 {
+		t.Fatalf("box = %v", b)
+	}
+	if p := a.StrokePoint(geom.Point{X: 1, Y: 1}); p != (geom.Point{X: 190, Y: 130}) {
+		t.Fatalf("stroke end = %v", p)
+	}
+	c := a.Clone()
+	c.Strokes[0][0].X = 0.5
+	if a.Strokes[0][0].X != 0 {
+		t.Fatal("clone shares strokes")
+	}
+	a.Resize(90)
+	if b := a.Box(); b.Dx() != 90 || b.Dy() != 30 || !a.Hit(geom.Point{X: 100, Y: 100}) {
+		t.Fatalf("resized box = %v", b)
+	}
+	RotatePage([]Annotation{a}, 0, true, 600, 800)
+}
+
+func TestParseHex(t *testing.T) {
+	if c, ok := ParseHex("#1E293b"); !ok || c != (Color{0x1e, 0x29, 0x3b}) {
+		t.Fatalf("got %v %v", c, ok)
+	}
+	if _, ok := ParseHex("#12345"); ok {
+		t.Fatal("short hex accepted")
+	}
+}

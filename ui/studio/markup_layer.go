@@ -49,6 +49,8 @@ func paintAnnotation(p *giode.Painter, a annot.Annotation, z float64) {
 	switch {
 	case a.Kind == annot.Text:
 		return
+	case a.Kind == annot.Signature:
+		paintSignature(p, a, z, sw, col)
 	case a.Kind.Freehand():
 		path := p.Path()
 		path.MoveTo(f(a.Points[0].X, z), f(a.Points[0].Y, z))
@@ -68,6 +70,22 @@ func paintAnnotation(p *giode.Painter, a annot.Annotation, z float64) {
 		}
 	default:
 		segment(p, a.Points[0], a.Points[len(a.Points)-1], z, sw, col)
+	}
+}
+
+func paintSignature(p *giode.Painter, a annot.Annotation, z float64, sw float32, col string) {
+	for _, st := range a.Strokes {
+		if len(st) < 2 {
+			continue
+		}
+		path := p.Path()
+		first := a.StrokePoint(st[0])
+		path.MoveTo(f(first.X, z), f(first.Y, z))
+		for _, u := range st[1:] {
+			pt := a.StrokePoint(u)
+			path.LineTo(f(pt.X, z), f(pt.Y, z))
+		}
+		path.Stroke(sw, col)
 	}
 }
 

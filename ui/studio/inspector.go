@@ -14,13 +14,14 @@ import (
 type inspector struct {
 	s      *Studio
 	style  *styleSection
+	sigs   *signatureSection
 	text   *textSection
 	doc    *documentSection
 	scroll *scroll.Scroll
 }
 
 func newInspector(s *Studio) *inspector {
-	in := &inspector{s: s, style: newStyleSection(s), text: newTextSection(s), doc: newDocumentSection(s)}
+	in := &inspector{s: s, style: newStyleSection(s), sigs: newSignatureSection(s), text: newTextSection(s), doc: newDocumentSection(s)}
 	in.scroll = giode.Scroll(in.content, giode.Styles{ScrollBar: theme.ScrollBar})
 	return in
 }
@@ -45,22 +46,16 @@ func (in *inspector) content() giode.Element {
 		if a, sel := in.s.selectedAnnot(); sel && a.Kind == annot.Text {
 			kids = append(kids, in.text.View())
 		}
+		if kind == annot.Signature {
+			kids = append(kids, in.sigs.View())
+		}
 	}
 	kids = append(kids, components.HRule(), in.doc.View())
 	return giode.Stack(giode.Styles{Width: -1}, kids...)
 }
 
-// subject is the kind the style controls act on: the selection's, or
-// the drawing tool's.
-func (in *inspector) subject() (annot.Kind, bool) {
-	if a, ok := in.s.selectedAnnot(); ok {
-		return a.Kind, true
-	}
-	if in.s.tool != ToolSelect {
-		return in.s.tool.Kind(), true
-	}
-	return 0, false
-}
+// subject is the kind the style controls act on.
+func (in *inspector) subject() (annot.Kind, bool) { return in.s.styledKind() }
 
 func (in *inspector) header(kind annot.Kind, ok bool) giode.Element {
 	title, hint := "Select", "Click markup to edit it, or pick a tool to draw."
@@ -68,8 +63,11 @@ func (in *inspector) header(kind annot.Kind, ok bool) giode.Element {
 		title, hint = kind.String(), "Selected · drag to move, Delete to remove"
 	} else if ok {
 		title, hint = kind.String(), "Drag on a page to draw"
-		if kind == annot.Text {
+		switch kind {
+		case annot.Text:
 			hint = "Click on a page to add text"
+		case annot.Signature:
+			hint = "Click on a page to place your signature"
 		}
 	}
 	return giode.Stack(giode.Styles{Width: -1, Gap: 4, Padding: giode.Inset{Top: 18, Left: 16, Right: 16, Bottom: 6}},

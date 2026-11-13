@@ -1,6 +1,10 @@
 package annot
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 // Color is an opaque RGB color.
 type Color struct {
@@ -29,4 +33,17 @@ func (c Color) Hex() string { return fmt.Sprintf("#%02x%02x%02x", c.R, c.G, c.B)
 // Floats returns the components in [0, 1], the form PDF operators take.
 func (c Color) Floats() (r, g, b float64) {
 	return float64(c.R) / 255, float64(c.G) / 255, float64(c.B) / 255
+}
+
+// ParseHex reads "#rrggbb" or "rrggbb" (any case).
+func ParseHex(s string) (Color, bool) {
+	s = strings.TrimPrefix(strings.TrimSpace(s), "#")
+	if len(s) != 6 {
+		return Color{}, false
+	}
+	v, err := strconv.ParseUint(s, 16, 32)
+	if err != nil {
+		return Color{}, false
+	}
+	return Color{R: uint8(v >> 16), G: uint8(v >> 8), B: uint8(v)}, true
 }

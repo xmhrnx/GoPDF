@@ -9,9 +9,14 @@ and window buttons.
 - **View:** continuous scrolling with lazily rendered pages, fit-width and zoom from 25 to
   400 %, page thumbnails, outline (bookmarks) and full-text search.
 - **Annotate:** text boxes, pen, marker, area highlight, rectangle, ellipse, line, arrow and
-  whiteout, with colors, stroke widths, fill and font sizes. Select markup to move it, restyle
-  it, edit its text or delete it. On save the markup is drawn into the page content, so every
-  PDF viewer shows it.
+  whiteout, with colors, stroke widths, fill and font sizes. Select markup to move it (with
+  the mouse, or the arrow keys: 1 pt, 10 pt with Shift), restyle it, edit its text, copy,
+  cut, paste, duplicate or delete it. On save the markup is drawn into the page content, so
+  every PDF viewer shows it.
+- **Sign:** draw a signature once, keep it, and place it in any document with the
+  Signature tool. Several signatures can be saved; pick the one to use in the inspector.
+- **Remembers:** the last color, stroke width, font size and signature size used for each
+  kind of markup, between runs.
 - **Organize:** rotate, duplicate, reorder, insert blank pages and delete pages. Markup
   moves with its page.
 - **Combine:** merge PDFs, extract page ranges (`1-3, 5, 8-`) into a new file, and split a
@@ -80,6 +85,8 @@ internal/            the app's logic, with no UI imports and its own tests
   history/           a generic undo stack
   pagecache/         background page rendering with a bounded LRU cache
   recent/            the recent files list
+  prefs/             the style remembered for each kind of markup
+  signature/         saved signatures: normalizing strokes, storing them
 ui/
   theme/             palettes, tokens, text styles, fonts, icons
   components/        reusable widgets (tool button, swatch, dialog frame, ...)
