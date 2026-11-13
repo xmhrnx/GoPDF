@@ -1,0 +1,45 @@
+# giode.toml configures how the giode CLI builds this app.
+# Reference: https://github.com/xmhrnx/giode-cli#giodetoml
+
+[app]
+name = "GoPDF"
+id = "com.example.gopdf"            # reverse-DNS, unique to your app; stores never let it change
+version = "0.1.0"
+build = 1                    # raise for every store upload (giode bump)
+icon = "assets/icon.png"     # replace the placeholder (see assets/README.md)
+package = "."
+platforms = ["linux", "windows", "macos"]   # what giode build builds with no target named
+publisher = "GoPDF"
+description = "A fast, native PDF editor: annotate, organize, merge, split and protect PDFs."
+website = ""
+ldflags = "-s -w"            # strip symbols: a smaller download
+
+[macos]
+min_os = 11
+# identity = "Developer ID Application: Your Name (TEAMID)"  # signs giode build -release
+# notary_id = "you@example.com"     # notarizes, with the password in $GIODE_NOTARY_PASS
+# notary_team_id = "TEAMID"
+
+[windows]
+arch = "amd64"
+# cc = "x86_64-w64-mingw32-gcc"  # only for cgo apps linking C libraries
+
+[windows.installer]
+# per_machine = true         # install for all users into Program Files (asks for admin)
+# desktop_shortcut = true
+# license = "assets/license.txt"
+
+[windows.signing]
+# certificate = "codesign.pfx"   # created by giode cert (testing) or bought; password in $GIODE_WINDOWS_CERT_PASS
+# timestamp = "http://timestamp.digicert.com"
+
+[linux]
+categories = ["Office", "Viewer"]     # freedesktop menu categories
+# license = "MIT"            # SPDX, for .deb, .rpm and AppStream
+
+[[file_types]]
+name = "PDF document"
+extensions = ["pdf"]
+mime_types = ["application/pdf"]
+uti = "com.adobe.pdf"
+role = "editor"
