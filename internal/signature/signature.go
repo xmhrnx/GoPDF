@@ -13,10 +13,10 @@ import (
 
 // Normalization constants.
 const (
-	minInk     = 2.0  // smallest drawing, in input units, that counts as a signature
-	padding    = 0.04 // margin around the ink, as a fraction of the larger side
-	minAspect  = 0.2  // narrowest width/height kept (a tall scribble)
-	maxPaths   = 4096 // a sanity cap on stored strokes and outlines
+	minInk    = 2.0  // smallest drawing, in input units, that counts as a signature
+	padding   = 0.04 // margin around the ink, as a fraction of the larger side
+	minAspect = 0.2  // narrowest width/height kept (a tall scribble)
+	maxPaths  = 4096 // a sanity cap on stored strokes and outlines
 )
 
 // Signature is a saved signature in unit coordinates of a box whose
