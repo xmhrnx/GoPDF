@@ -68,7 +68,7 @@ func (s *Studio) escape() {
 
 // escapeKey leaves a text field first, then works as escape.
 func (s *Studio) escapeKey() {
-	if s.ui.typing() && !s.ui.dialogOpen() {
+	if s.ui.editingText() {
 		s.ui.viewer.blurFields()
 		return
 	}

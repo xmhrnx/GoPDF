@@ -2,17 +2,21 @@ package studio
 
 import "gopdf/internal/annot"
 
-// typing reports whether keys are meant as text: a field has the focus
-// or a dialog is open. Shortcuts without modifiers (tool letters,
-// Delete) stand down then, so typing never switches tools.
-func (v *views) typing() bool {
-	textShown := false
-	if a, ok := v.s.selectedAnnot(); ok && a.Kind == annot.Text && v.s.view.inspector {
-		textShown = true
+// editingText reports whether one of the app's text fields has the
+// focus. Giode keeps typed characters, Delete and the arrows from
+// reaching shortcuts while a field has focus, but not Mod shortcuts:
+// Mod+C in a field must copy its text, not the selected markup.
+func (v *views) editingText() bool {
+	if a, ok := v.s.selectedAnnot(); ok && v.s.view.inspector {
+		if a.Kind == annot.Text && v.inspector.text.field.Focused() {
+			return true
+		}
+		if v.inspector.style.focused() {
+			return true
+		}
 	}
 	searchShown := v.s.view.sidebar && v.s.view.tab == tabSearch
-	return (textShown && v.inspector.text.field.Focused()) ||
-		(searchShown && v.search.field.Focused()) || v.dialogOpen()
+	return searchShown && v.search.field.Focused()
 }
 
 func (v *views) dialogOpen() bool {
@@ -20,10 +24,21 @@ func (v *views) dialogOpen() bool {
 		v.pageNumbers.open || v.security.open || v.extract.open || v.split.open || v.shortcuts.open || v.signer.open
 }
 
-// unlessTyping wraps a plain-key shortcut action with the typing guard.
-func (v *views) unlessTyping(fn func()) func() {
+// unlessEditing wraps a clipboard shortcut so it leaves text fields and
+// dialogs their own copy and paste.
+func (v *views) unlessEditing(fn func()) func() {
 	return func() {
-		if !v.typing() {
+		if !v.editingText() && !v.dialogOpen() {
+			fn()
+		}
+	}
+}
+
+// unlessDialog wraps a shortcut that acts on the document behind a
+// dialog, so it waits until the dialog is closed.
+func (v *views) unlessDialog(fn func()) func() {
+	return func() {
+		if !v.dialogOpen() {
 			fn()
 		}
 	}

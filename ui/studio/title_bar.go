@@ -2,6 +2,7 @@ package studio
 
 import (
 	"github.com/xmhrnx/giode"
+	"github.com/xmhrnx/giode/components/menu"
 	"github.com/xmhrnx/giode/components/titlebar"
 
 	"gopdf/ui/components"
@@ -9,8 +10,11 @@ import (
 	"gopdf/ui/theme"
 )
 
-// titleBar is the custom window frame: logo, menus, document name and
-// window buttons.
+// titleMaxWidth caps the document name in the title bar, in dp.
+const titleMaxWidth = 320
+
+// titleBar is the custom window frame: logo, a menu bar that opens on
+// hover, the document name centered after it, and window buttons.
 type titleBar struct {
 	s     *Studio
 	bar   *titlebar.TitleBar
@@ -24,6 +28,12 @@ func newTitleBar(s *Studio) *titleBar {
 	t.panel = components.NewToolButton("panel-right", "Toggle inspector", s.toggleInspector).
 		Active(func() bool { return s.view.inspector }).Enabled(s.hasDoc)
 	m := newMenus(s)
+	mb := giode.MenuBar().OpenOnHover(true)
+	// Each panel is laid out beside its trigger: laid out elsewhere, a
+	// panel opened by hovering shows under the first menu instead.
+	item := func(menu *menu.Menu, label string) giode.Element {
+		return giode.Row(giode.Styles{}, mb.Add(menu, components.MenuLabel(label)), menu)
+	}
 	t.bar = giode.TitleBar(s.win, "GoPDF", giode.Styles{
 		Height: theme.TitleBarHeight, Background: theme.Surface, Color: theme.TextColor,
 		BorderWidth: 1, BorderColor: theme.Border, FontSize: 12.5,
@@ -31,13 +41,15 @@ func newTitleBar(s *Studio) *titleBar {
 		Variant(platform.TitleBarVariant).
 		Icon(appLogo(s.logo, 24)).
 		Leading(
-			components.NewMenuButton("File", m.file),
-			components.NewMenuButton("Edit", m.edit),
-			components.NewMenuButton("View", m.view),
-			components.NewMenuButton("Page", m.page),
-			components.NewMenuButton("Tools", m.tools),
-			components.NewMenuButton("Help", m.help),
+			item(m.file, "File"),
+			item(m.edit, "Edit"),
+			item(m.view, "View"),
+			item(m.page, "Page"),
+			item(m.tools, "Tools"),
+			item(m.help, "Help"),
 		).
+		TitlePlacement(giode.TitleBarTitleCenter).
+		TitleMaxWidth(titleMaxWidth).
 		Trailing(giode.Raw(t.trailing)).
 		OnClose(s.OnClose)
 	return t

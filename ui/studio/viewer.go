@@ -1,7 +1,6 @@
 package studio
 
 import (
-	"gioui.org/io/key"
 	"github.com/xmhrnx/giode"
 
 	"gopdf/ui/theme"
@@ -16,7 +15,6 @@ type viewer struct {
 	s      *Studio
 	list   *giode.LazyListElement
 	settle int
-	blur   bool // take the keyboard focus from text fields
 }
 
 func newViewer(s *Studio) *viewer {
@@ -40,13 +38,13 @@ func (v *viewer) View() giode.Element {
 
 // blurFields takes the keyboard focus away from text fields, as a press
 // on the page does in every editor.
-func (v *viewer) blurFields() { v.blur = true }
+func (v *viewer) blurFields() {
+	v.s.ui.inspector.text.field.Blur()
+	v.s.ui.inspector.style.blur()
+	v.s.ui.search.field.Blur()
+}
 
 func (v *viewer) layout(gtx giode.Context) giode.Dimensions {
-	if v.blur {
-		v.blur = false
-		gtx.Execute(key.FocusCmd{})
-	}
 	v.s.view.viewportWidth = int(giode.PxToDp(gtx.Constraints.Max.X))
 	dims := v.list.Layout(gtx)
 	if v.settle > 0 {

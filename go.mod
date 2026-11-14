@@ -3,13 +3,16 @@ module gopdf
 go 1.26.6
 
 require (
+	gioui.org v0.10.2
+	github.com/gen2brain/go-fitz v1.28.2
 	github.com/pdfcpu/pdfcpu v0.16.4
-	github.com/xmhrnx/giode v1.0.20-alpha.1
+	github.com/xmhrnx/giode v1.0.21-alpha.1
+	golang.org/x/image v0.47.0
+	golang.org/x/text v0.43.0
 )
 
 require (
 	fyne.io/systray v1.12.2 // indirect
-	gioui.org v0.10.2 // indirect
 	gioui.org/shader v1.0.9 // indirect
 	gioui.org/x v0.10.2 // indirect
 	git.sr.ht/~jackmordaunt/go-toast v1.0.0 // indirect
@@ -17,7 +20,6 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/ebitengine/purego v0.10.1 // indirect
 	github.com/esiqveland/notify v0.11.0 // indirect
-	github.com/gen2brain/go-fitz v1.28.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-text/typesetting v0.3.4 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
@@ -29,8 +31,6 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp/shiny v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
-	golang.org/x/image v0.47.0 // indirect
 	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/text v0.43.0 // indirect
 )

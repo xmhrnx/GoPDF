@@ -10,10 +10,9 @@ import (
 
 // textSection edits the content of the selected text annotation.
 type textSection struct {
-	s       *Studio
-	field   *input.Input
-	fresh   bool // focused, nothing typed yet: the first change opens an undo step
-	focusIn int  // frames until the field, new in the layout, takes the focus
+	s     *Studio
+	field *input.Input
+	fresh bool // focused, nothing typed yet: the first change opens an undo step
 }
 
 func newTextSection(s *Studio) *textSection {
@@ -46,23 +45,14 @@ func (t *textSection) sync() {
 	}
 }
 
-// edit focuses the field with all its text selected. Gio only gives the
-// focus to a field it has seen laid out, so the request waits a frame.
+// edit focuses the field with all its text selected.
 func (t *textSection) edit() {
 	t.sync()
-	t.focusIn = 2
+	t.field.Focus()
+	t.field.SelectAll()
 }
 
 // View returns the section for this frame.
 func (t *textSection) View() giode.Element {
-	if t.focusIn > 0 {
-		t.focusIn--
-		if t.focusIn == 0 {
-			t.field.Focus()
-			t.field.SelectAll()
-		} else {
-			t.s.win.Post(func() {}) // one more frame
-		}
-	}
 	return components.Section("Text", t.field)
 }

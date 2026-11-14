@@ -33,8 +33,8 @@ func registerShortcuts(s *Studio) {
 		giode.Shortcut("Mod+Z", s.undo),
 		giode.Shortcut("Mod+Shift+Z", s.redo),
 		giode.Shortcut("Mod+Y", s.redo),
-		giode.Shortcut("Delete", s.ui.unlessTyping(s.deleteSelected)),
-		giode.Shortcut("Backspace", s.ui.unlessTyping(s.deleteSelected)),
+		giode.Shortcut("Delete", s.ui.unlessDialog(s.deleteSelected)),
+		giode.Shortcut("Backspace", s.ui.unlessDialog(s.deleteSelected)),
 		giode.Shortcut("Esc", s.escapeKey),
 		giode.Shortcut("Mod+=", func() { s.zoomBy(1) }),
 		giode.Shortcut("Mod+Shift+=", func() { s.zoomBy(1) }),
@@ -46,23 +46,23 @@ func registerShortcuts(s *Studio) {
 		giode.Shortcut("Mod+F", s.ui.search.focus),
 		giode.Shortcut("Mod+/", s.ui.openShortcuts),
 		giode.Shortcut("Mod+Shift+D", theme.ToggleMode),
-		giode.Shortcut("PageDown", s.ui.unlessTyping(func() { s.goToPage(s.view.current + 1) })),
-		giode.Shortcut("PageUp", s.ui.unlessTyping(func() { s.goToPage(s.view.current - 1) })),
+		giode.Shortcut("PageDown", s.ui.unlessDialog(func() { s.goToPage(s.view.current + 1) })),
+		giode.Shortcut("PageUp", s.ui.unlessDialog(func() { s.goToPage(s.view.current - 1) })),
 		giode.Shortcut("Mod+R", cur(func(p int) { s.rotatePage(p, true) })),
 		giode.Shortcut("Mod+Shift+R", cur(func(p int) { s.rotatePage(p, false) })),
 		giode.Shortcut("Mod+D", s.duplicate),
-		giode.Shortcut("Mod+C", s.ui.unlessTyping(s.copySelection)),
-		giode.Shortcut("Mod+X", s.ui.unlessTyping(s.cutSelection)),
-		giode.Shortcut("Mod+V", s.ui.unlessTyping(s.paste)),
+		giode.Shortcut("Mod+C", s.ui.unlessEditing(s.copySelection)),
+		giode.Shortcut("Mod+X", s.ui.unlessEditing(s.cutSelection)),
+		giode.Shortcut("Mod+V", s.ui.unlessEditing(s.paste)),
 		giode.Shortcut("Mod+Backspace", cur(s.deletePage)),
 	}
 	for _, n := range nudgeKeys {
-		list = append(list, giode.Shortcut(n.spec, s.ui.unlessTyping(func() { s.nudge(n.dx, n.dy, n.large) })))
+		list = append(list, giode.Shortcut(n.spec, s.ui.unlessDialog(func() { s.nudge(n.dx, n.dy, n.large) })))
 	}
 	if s.hasDoc() {
 		for _, d := range tools {
 			tool := d.tool
-			list = append(list, giode.Shortcut(d.key, s.ui.unlessTyping(func() { s.setTool(tool) })))
+			list = append(list, giode.Shortcut(d.key, s.ui.unlessDialog(func() { s.setTool(tool) })))
 		}
 	}
 	giode.Shortcuts(list...)

@@ -44,6 +44,7 @@ type Studio struct {
 	signatures *signatureBook // saved signatures
 	clipboard  *clipboard     // copied markup
 	nudging    nudgeState     // groups arrow-key moves into one undo step
+	live       liveGroup      // groups continuous style edits into one undo step
 	selected   int64          // selected annotation ID, 0 for none
 	drawing    *annot.Annotation
 	moving     *moveGesture
