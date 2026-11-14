@@ -20,6 +20,7 @@ const (
 type signatureDialog struct {
 	s      *Studio
 	open   bool
+	then   func() // runs once a signature is saved; nil to just pick the tool
 	mode   *segmented.Control
 	pad    *drawPad
 	typed  *typePanel
@@ -39,7 +40,10 @@ func newSignatureDialog(s *Studio) *signatureDialog {
 	return d
 }
 
-func (d *signatureDialog) show() {
+// show opens the dialog; then, when not nil, runs once the new signature
+// is saved (to place it where the user clicked).
+func (d *signatureDialog) show(then func()) {
+	d.then = then
 	d.pad.clear()
 	d.typed.reset()
 	d.open = true
@@ -61,12 +65,17 @@ func (d *signatureDialog) submit() {
 		}
 		ok = true
 		d.s.memory.prefs.SignatureFont = d.typed.fontName()
+		d.s.ui.digitalIDs.suggestName(d.typed.name.Text())
 	} else if sig, ok = d.pad.signature(); !ok {
 		d.s.toasts.Show(giode.ToastWarning, "Draw your signature first")
 		return
 	}
 	d.open = false
 	d.s.signatures.add(d.s, sig)
+	if d.then != nil {
+		d.then()
+		return
+	}
 	d.s.setTool(Tool(annot.Signature))
 	d.s.toasts.Show(giode.ToastSuccess, "Signature saved. Click on a page to place it.")
 }

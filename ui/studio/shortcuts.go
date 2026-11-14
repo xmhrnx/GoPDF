@@ -30,6 +30,8 @@ func registerShortcuts(s *Studio) {
 		giode.Shortcut("Mod+S", s.save),
 		giode.Shortcut("Mod+Shift+S", s.saveAs),
 		giode.Shortcut("Mod+W", s.closeDocument),
+		giode.Shortcut("Ctrl+Tab", func() { s.cycleDocuments(1) }),
+		giode.Shortcut("Ctrl+Shift+Tab", func() { s.cycleDocuments(-1) }),
 		giode.Shortcut("Mod+Z", s.undo),
 		giode.Shortcut("Mod+Shift+Z", s.redo),
 		giode.Shortcut("Mod+Y", s.redo),

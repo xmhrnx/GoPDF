@@ -39,7 +39,7 @@ func (d *passwordDialog) ask(p pendingOpen, wrong bool) {
 
 func (d *passwordDialog) submit() {
 	d.open = false
-	d.s.openBytes(d.pending.data, d.pending.path, d.pending.name, d.field.Text())
+	d.s.openBytes(d.pending.data, d.pending.path, d.pending.name, d.field.Text(), d.pending.replace)
 }
 
 func (d *passwordDialog) content() giode.Element {

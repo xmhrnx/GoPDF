@@ -1,10 +1,6 @@
 package studio
 
-import (
-	"fmt"
-
-	"github.com/xmhrnx/giode"
-)
+import "fmt"
 
 // The openers show a dialog when a document is open and nothing runs.
 
@@ -53,12 +49,7 @@ func (v *views) openSplit() {
 func (v *views) openShortcuts() { v.shortcuts.open = true }
 
 func (v *views) openSignatureDetails() {
-	if !v.s.hasDoc() {
-		return
+	if v.s.hasDoc() {
+		v.sigDetails.showAll()
 	}
-	if sigs := v.s.doc.Doc().Signatures; len(sigs) > 0 {
-		v.sigDetails.show(sigs)
-		return
-	}
-	v.s.toasts.Show(giode.ToastInfo, "This document has no signatures")
 }

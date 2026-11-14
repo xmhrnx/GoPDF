@@ -10,11 +10,8 @@ import (
 	"gopdf/ui/theme"
 )
 
-// titleMaxWidth caps the document name in the title bar, in dp.
-const titleMaxWidth = 320
-
 // titleBar is the custom window frame: logo, a menu bar that opens on
-// hover, the document name centered after it, and window buttons.
+// hover, and window buttons. Document names belong to the tabs.
 type titleBar struct {
 	s     *Studio
 	bar   *titlebar.TitleBar
@@ -34,7 +31,7 @@ func newTitleBar(s *Studio) *titleBar {
 		return mb.Add(menu, components.MenuLabel(label))
 	}
 	t.menus = m
-	t.bar = giode.TitleBar(s.win, "GoPDF", giode.Styles{
+	t.bar = giode.TitleBar(s.win, "", giode.Styles{
 		Height: theme.TitleBarHeight, Background: theme.Surface, Color: theme.TextColor,
 		BorderWidth: 1, BorderColor: theme.Border, FontSize: 12.5,
 	}).
@@ -48,8 +45,6 @@ func newTitleBar(s *Studio) *titleBar {
 			item(m.tools, "Tools"),
 			item(m.help, "Help"),
 		).
-		TitlePlacement(giode.TitleBarTitleCenter).
-		TitleMaxWidth(titleMaxWidth).
 		Trailing(giode.Raw(t.trailing)).
 		OnClose(s.OnClose)
 	return t
@@ -61,21 +56,8 @@ func (t *titleBar) panels() []giode.Element {
 	return []giode.Element{m.file, m.edit, m.view, m.page, m.tools, m.help}
 }
 
-// View returns the bar with the current document name.
-func (t *titleBar) View() giode.Element {
-	t.bar.Title(t.title())
-	return t.bar
-}
-
-func (t *titleBar) title() string {
-	if !t.s.hasDoc() {
-		return "GoPDF"
-	}
-	if t.s.doc.Dirty() {
-		return t.s.doc.Name + "  •  Edited"
-	}
-	return t.s.doc.Name
-}
+// View returns the bar for this frame.
+func (t *titleBar) View() giode.Element { return t.bar }
 
 func (t *titleBar) trailing(gtx giode.Context) giode.Dimensions {
 	icon := "moon"

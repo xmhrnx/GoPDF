@@ -17,7 +17,7 @@ type signatureSection struct {
 func newSignatureSection(s *Studio) *signatureSection {
 	return &signatureSection{
 		s:     s,
-		added: components.NewSecondaryButton("New Signature…", func() { s.ui.signer.show() }).Icon(theme.Icon("plus", 15, "")),
+		added: components.NewSecondaryButton("New Signature…", func() { s.ui.signer.show(nil) }).Icon(theme.Icon("plus", 15, "")),
 	}
 }
 

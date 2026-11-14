@@ -31,7 +31,9 @@ type Studio struct {
 	recents *recentFiles
 	toasts  *toaster.Toaster
 
-	doc      *editor.Session // nil while no document is open
+	docs     []*openDoc      // the open documents, in tab order
+	active   int             // index of the active one in docs, -1 for none
+	doc      *editor.Session // the active document; nil while none is open
 	renderer *pdf.Renderer
 	rendered int // session version the renderer shows
 	pages    *pagecache.Cache
@@ -39,18 +41,19 @@ type Studio struct {
 	outline  []pdf.OutlineItem
 	busy     string // what runs in the background, "" when idle
 
-	tool       Tool
-	memory     *memory        // per-kind styles and the active signature, kept on disk
-	signatures *signatureBook // saved signatures
-	ids        *digitalIDs    // digital IDs to sign with
-	clipboard  *clipboard     // copied markup
-	nudging    nudgeState     // groups arrow-key moves into one undo step
-	live       liveGroup      // groups continuous style edits into one undo step
-	selected   int64          // selected annotation ID, 0 for none
-	drawing    *annot.Annotation
-	moving     *moveGesture
-	view       viewState
-	dragOver   bool
+	tool        Tool
+	memory      *memory        // per-kind styles and the active signature, kept on disk
+	signatures  *signatureBook // saved signatures
+	ids         *digitalIDs    // digital IDs to sign with
+	clipboard   *clipboard     // copied markup
+	nudging     nudgeState     // groups arrow-key moves into one undo step
+	live        liveGroup      // groups continuous style edits into one undo step
+	selected    int64          // selected annotation ID, 0 for none
+	skipSealing bool           // place the next signature without a digital ID
+	drawing     *annot.Annotation
+	moving      *moveGesture
+	view        viewState
+	dragOver    bool
 
 	ui *views
 }
@@ -58,7 +61,7 @@ type Studio struct {
 // New returns the studio, showing logo as the app's mark and offering
 // scripts for typed signatures; Attach it to a window before running it.
 func New(logo image.Image, scripts []theme.ScriptFont) *Studio {
-	s := &Studio{logo: logo, scripts: scripts, tool: ToolSelect, view: newViewState(), clipboard: &clipboard{}}
+	s := &Studio{logo: logo, scripts: scripts, active: -1, tool: ToolSelect, view: newViewState(), clipboard: &clipboard{}}
 	s.memory = newMemory()
 	s.signatures = newSignatureBook()
 	s.ids = newDigitalIDs()
@@ -92,7 +95,7 @@ func (s *Studio) OnFileDrop(paths []string) {
 	s.dragOver = false
 	for _, p := range paths {
 		if isPDF(p) {
-			s.guardUnsaved(func() { s.openPath(p) })
+			s.openPath(p)
 			return
 		}
 	}
@@ -105,12 +108,12 @@ func (s *Studio) OnFileDrag(d giode.FileDrag) {
 }
 
 // OnClose runs when the title bar's close button is pressed; it keeps the
-// window open while there are unsaved changes and asks first.
+// window open while documents have unsaved changes, and asks about each.
 func (s *Studio) OnClose() bool {
-	if s.doc == nil || !s.doc.Dirty() {
+	if !s.anyDirty() {
 		return true
 	}
-	s.guardUnsaved(s.win.Close)
+	s.closeAll(s.win.Close)
 	return false
 }
 
@@ -136,6 +139,6 @@ func (s *Studio) OpenFiles(paths []string) {
 // OnOpenURL opens a PDF handed over as a file:// URL (macOS "Open with").
 func (s *Studio) OnOpenURL(u *url.URL) {
 	if u.Scheme == "file" && isPDF(u.Path) {
-		s.guardUnsaved(func() { s.openPath(u.Path) })
+		s.openPath(u.Path)
 	}
 }

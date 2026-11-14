@@ -17,7 +17,7 @@ func newEditMenu(s *Studio) *menu.Menu {
 		IconItem(theme.MenuIcon("copy"), "Duplicate", s.duplicate).Shortcut("Mod+D").
 		IconItem(theme.MenuIcon("trash-2"), "Delete Selection", s.deleteSelected).Shortcut("Delete").
 		Separator().
-		IconItem(theme.MenuIcon("signature"), "New Signature…", func() { s.ui.signer.show() }).
+		IconItem(theme.MenuIcon("signature"), "New Signature…", func() { s.ui.signer.show(nil) }).
 		Separator().
 		IconItem(theme.MenuIcon("info"), "Document Properties…", s.ui.openProperties)
 }

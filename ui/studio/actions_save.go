@@ -104,7 +104,7 @@ func (s *Studio) writeDocument(put func([]byte) (string, error), then func()) {
 			if path != "" {
 				name = filepath.Base(path)
 			}
-			s.openBytes(data, path, name, sec.UserPassword)
+			s.openBytes(data, path, name, sec.UserPassword, true)
 		}
 		if then != nil {
 			then()

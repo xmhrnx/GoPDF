@@ -19,7 +19,7 @@ type signaturesBanner struct {
 func newSignaturesBanner(s *Studio) *signaturesBanner {
 	b := &signaturesBanner{s: s}
 	b.details = components.NewSecondaryButton("Signature Details", func() {
-		s.ui.sigDetails.show(s.doc.Doc().Signatures)
+		s.ui.sigDetails.showAll()
 	})
 	return b
 }
