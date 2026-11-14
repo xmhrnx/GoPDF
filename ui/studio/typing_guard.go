@@ -11,7 +11,7 @@ func (v *views) editingText() bool {
 		if a.Kind == annot.Text && v.inspector.text.field.Focused() {
 			return true
 		}
-		if v.inspector.style.focused() {
+		if v.inspector.style.focused() || v.inspector.seal.focused() {
 			return true
 		}
 	}
@@ -21,7 +21,8 @@ func (v *views) editingText() bool {
 
 func (v *views) dialogOpen() bool {
 	return v.password.open || v.unsaved.open || v.properties.open || v.watermark.open ||
-		v.pageNumbers.open || v.security.open || v.extract.open || v.split.open || v.shortcuts.open || v.signer.open
+		v.pageNumbers.open || v.security.open || v.extract.open || v.split.open || v.shortcuts.open || v.signer.open ||
+		v.confirm.open || v.unlockID.open || v.digitalIDs.open || v.sigDetails.open
 }
 
 // unlessEditing wraps a clipboard shortcut so it leaves text fields and

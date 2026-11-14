@@ -16,7 +16,7 @@ func (s *Studio) syncRenderer() {
 	if s.renderer != nil && s.rendered == s.doc.Version() {
 		return
 	}
-	r, err := pdf.NewRenderer(s.doc.Doc().Data)
+	r, err := pdf.NewRenderer(s.doc.Doc().Display)
 	if err != nil {
 		s.toasts.Show(giode.ToastError, "Can't display this document: "+err.Error())
 		return

@@ -32,8 +32,9 @@ func (v *viewer) scrollTo(page int) {
 
 // View returns the viewer for this frame.
 func (v *viewer) View() giode.Element {
-	return giode.Box(giode.Styles{FlexGrow: 1, Height: -1, Background: theme.Canvas},
-		giode.Raw(v.layout))
+	return giode.Stack(giode.Styles{FlexGrow: 1, Height: -1, Background: theme.Canvas},
+		v.s.ui.sigBanner.View(),
+		giode.Box(giode.Styles{Width: -1, FlexGrow: 1}, giode.Raw(v.layout)))
 }
 
 // blurFields takes the keyboard focus away from text fields, as a press
@@ -41,6 +42,7 @@ func (v *viewer) View() giode.Element {
 func (v *viewer) blurFields() {
 	v.s.ui.inspector.text.field.Blur()
 	v.s.ui.inspector.style.blur()
+	v.s.ui.inspector.seal.blur()
 	v.s.ui.search.field.Blur()
 }
 

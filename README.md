@@ -17,6 +17,13 @@ and window buttons.
   keep it and place it in any document with the Signature tool. Typed signatures are saved
   as vector outlines, so they look the same in every PDF viewer without embedding a font.
   Several signatures can be saved; pick the one to use in the inspector.
+- **Digital signatures:** turn a placed signature into a digital signature with a digital
+  ID: create a self-signed one in GoPDF (name, email, organization, password) or import a
+  `.p12`/`.pfx` from a certificate authority. On save the signature becomes a signature
+  field sealed with the ID (PAdES, `ETSI.CAdES.detached`), recording the signer, time,
+  reason and location; adding a signature to a signed file keeps the earlier ones valid.
+  Opening a signed PDF shows a banner with the result, and clicking a signature shows who
+  signed and whether the document changed since. Checks run offline.
 - **Remembers:** the last color, stroke width, font size and signature size used for each
   kind of markup, between runs.
 - **Organize:** rotate, duplicate, reorder, insert blank pages and delete pages. Markup
@@ -33,7 +40,7 @@ and window buttons.
 
 ## Build and run
 
-You need Go 1.26+, a C compiler (MuPDF is linked through cgo) and the Giode CLI:
+You need Go 1.27+, a C compiler (MuPDF is linked through cgo) and the Giode CLI:
 
 ```bash
 go install github.com/xmhrnx/giode-cli/cmd/giode@latest
@@ -88,7 +95,8 @@ internal/            the app's logic, with no UI imports and its own tests
   pagecache/         background page rendering with a bounded LRU cache
   recent/            the recent files list
   prefs/             the style remembered for each kind of markup
-  signature/         saved signatures: normalizing strokes, storing them
+  signature/         saved signatures: normalizing strokes, typed names as outlines
+  digitalid/         digital IDs: self-signed creation, PKCS#12 import, locked storage
 ui/
   theme/             palettes, tokens, text styles, fonts, icons
   components/        reusable widgets (tool button, swatch, dialog frame, ...)
@@ -112,6 +120,8 @@ keeps undo cheap and the interface responsive.
 
 ## Credits
 
+Digital signatures: [pdfsign](https://github.com/digitorus/pdfsign) (BSD 2-Clause) and
+[go-pkcs12](https://github.com/SSLMate/go-pkcs12) (BSD 3-Clause).
 Rendering: [MuPDF](https://mupdf.com) through [go-fitz](https://github.com/gen2brain/go-fitz)
 (AGPL). Editing: [pdfcpu](https://github.com/pdfcpu/pdfcpu) (Apache 2.0). Icons:
 [Lucide](https://lucide.dev) (ISC). Typefaces: [Inter](https://rsms.me/inter/), and Great

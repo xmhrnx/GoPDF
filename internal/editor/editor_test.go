@@ -92,7 +92,7 @@ func TestSplitAndExport(t *testing.T) {
 	if len(parts) != 3 {
 		t.Fatalf("parts = %d", len(parts))
 	}
-	out, err := Export(s.Snapshot(), Security{UserPassword: "pw"})
+	out, err := Export(s.Snapshot(), Security{UserPassword: "pw"}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

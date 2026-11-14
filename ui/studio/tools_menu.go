@@ -12,5 +12,7 @@ func newToolsMenu(s *Studio) *menu.Menu {
 		IconItem(theme.MenuIcon("hash"), "Add Page Numbers…", s.ui.openPageNumbers).
 		Separator().
 		IconItem(theme.MenuIcon("lock"), "Password Protection…", s.ui.openSecurity).
+		IconItem(theme.MenuIcon("badge-check"), "Digital IDs…", func() { s.ui.digitalIDs.show(nil) }).
+		IconItem(theme.MenuIcon("shield-check"), "Signature Details…", s.ui.openSignatureDetails).
 		IconItem(theme.MenuIcon("info"), "Document Properties…", s.ui.openProperties)
 }

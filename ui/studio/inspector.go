@@ -15,13 +15,14 @@ type inspector struct {
 	s      *Studio
 	style  *styleSection
 	sigs   *signatureSection
+	seal   *sealSection
 	text   *textSection
 	doc    *documentSection
 	scroll *scroll.Scroll
 }
 
 func newInspector(s *Studio) *inspector {
-	in := &inspector{s: s, style: newStyleSection(s), sigs: newSignatureSection(s), text: newTextSection(s), doc: newDocumentSection(s)}
+	in := &inspector{s: s, style: newStyleSection(s), sigs: newSignatureSection(s), seal: newSealSection(s), text: newTextSection(s), doc: newDocumentSection(s)}
 	in.scroll = giode.Scroll(in.content, giode.Styles{ScrollBar: theme.ScrollBar})
 	return in
 }
@@ -45,6 +46,9 @@ func (in *inspector) content() giode.Element {
 		kids = append(kids, in.style.View(kind))
 		if a, sel := in.s.selectedAnnot(); sel && a.Kind == annot.Text {
 			kids = append(kids, in.text.View())
+		}
+		if a, sel := in.s.selectedAnnot(); sel && a.Kind == annot.Signature {
+			kids = append(kids, in.seal.View(a))
 		}
 		if kind == annot.Signature {
 			kids = append(kids, in.sigs.View())

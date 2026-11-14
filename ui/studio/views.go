@@ -30,6 +30,12 @@ type views struct {
 	split       *splitDialog
 	shortcuts   *shortcutsDialog
 	signer      *signatureDialog
+
+	confirm    *confirmDialog
+	unlockID   *unlockIDDialog
+	digitalIDs *digitalIDsDialog
+	sigDetails *signatureDetailsDialog
+	sigBanner  *signaturesBanner
 }
 
 func newViews(s *Studio) *views {
@@ -54,6 +60,11 @@ func newViews(s *Studio) *views {
 	v.split = newSplitDialog(s)
 	v.shortcuts = newShortcutsDialog(s)
 	v.signer = newSignatureDialog(s)
+	v.confirm = newConfirmDialog()
+	v.unlockID = newUnlockIDDialog(s)
+	v.digitalIDs = newDigitalIDsDialog(s)
+	v.sigDetails = newSignatureDetailsDialog(s)
+	v.sigBanner = newSignaturesBanner(s)
 	return v
 }
 
@@ -93,6 +104,7 @@ func (v *views) overlays() []giode.Element {
 		v.pageMenu.menu,
 		v.password.dialog, v.unsaved.dialog, v.properties.dialog, v.watermark.dialog,
 		v.pageNumbers.dialog, v.security.dialog, v.extract.dialog, v.split.dialog, v.shortcuts.dialog, v.signer.dialog,
+		v.digitalIDs.dialog, v.sigDetails.dialog, v.unlockID.dialog, v.confirm.dialog,
 		v.s.toasts,
 	}
 }

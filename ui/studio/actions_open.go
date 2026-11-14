@@ -74,7 +74,12 @@ func (s *Studio) openBytes(data []byte, path, name, password string) {
 		return err
 	}, func() {
 		if doc != nil {
-			s.show(editor.NewSession(doc, path, name))
+			session := editor.NewSession(doc, path, name)
+			if doc.Encrypted {
+				// Saving keeps the file protected with the same password.
+				session.Security = editor.Security{UserPassword: password}
+			}
+			s.show(session)
 		}
 	})
 }

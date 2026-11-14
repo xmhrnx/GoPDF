@@ -57,6 +57,8 @@ func (pv *pageView) content(giode.PressState) giode.Element {
 	kids := []giode.Element{pv.image(w, h, pw, ph, z)}
 	kids = append(kids, markupLayer(pv.s, pv.page, w, h, z))
 	kids = append(kids, textMarkup(pv.s, pv.page, z)...)
+	kids = append(kids, sealBadges(pv.s, pv.page, z)...)
+	kids = append(kids, signatureFieldLayer(pv.s, pv.page, z)...)
 	return giode.Box(giode.Styles{
 		Width: properties.Width(w), Height: properties.Height(h), Background: "#ffffff",
 		BoxShadow: giode.BoxShadow{Y: 2, Blur: 14, Color: theme.PageShadow},

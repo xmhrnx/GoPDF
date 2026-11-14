@@ -42,6 +42,7 @@ type Studio struct {
 	tool       Tool
 	memory     *memory        // per-kind styles and the active signature, kept on disk
 	signatures *signatureBook // saved signatures
+	ids        *digitalIDs    // digital IDs to sign with
 	clipboard  *clipboard     // copied markup
 	nudging    nudgeState     // groups arrow-key moves into one undo step
 	live       liveGroup      // groups continuous style edits into one undo step
@@ -60,6 +61,7 @@ func New(logo image.Image, scripts []theme.ScriptFont) *Studio {
 	s := &Studio{logo: logo, scripts: scripts, tool: ToolSelect, view: newViewState(), clipboard: &clipboard{}}
 	s.memory = newMemory()
 	s.signatures = newSignatureBook()
+	s.ids = newDigitalIDs()
 	s.toasts = giode.Toaster().Placement(giode.ToastBottomEnd).Max(3).
 		Inset(giode.Inset{Bottom: 36, Right: 8})
 	s.recents = newRecentFiles()
@@ -76,6 +78,7 @@ func (s *Studio) Attach(win *giode.App) {
 	s.recents.load(s)
 	s.memory.load(s)
 	s.signatures.load(s)
+	s.ids.load(s)
 }
 
 // View is the window's view function.

@@ -18,6 +18,7 @@ type Session struct {
 	Name     string // display name
 	Security Security
 
+	opened  *pdf.Document // the document as opened or last saved
 	cur     Snapshot
 	hist    *history.Stack[Snapshot]
 	dirty   bool
@@ -29,7 +30,7 @@ func NewSession(doc *pdf.Document, path, name string) *Session {
 	if name == "" {
 		name = filepath.Base(path)
 	}
-	return &Session{Path: path, Name: name, cur: Snapshot{Doc: doc}, hist: history.New[Snapshot](historyLimit), version: nextVersion()}
+	return &Session{Path: path, Name: name, opened: doc, cur: Snapshot{Doc: doc}, hist: history.New[Snapshot](historyLimit), version: nextVersion()}
 }
 
 // Snapshot returns the current state.
@@ -98,3 +99,24 @@ func (s *Session) MarkSaved(path string) {
 // Touch marks the document changed without an undo step, for settings
 // that only affect how it is written (its password).
 func (s *Session) Touch() { s.dirty = true }
+
+// SignaturesAtRisk returns how many of the document's existing
+// signatures saving now would invalidate: all of them once pages or
+// non-signature markup changed, or a password is added, since the file
+// is then rewritten; none when only new digital signatures are added.
+func (s *Session) SignaturesAtRisk() int {
+	n := 0
+	for _, f := range s.opened.Signatures {
+		if f.Signed {
+			n++
+		}
+	}
+	if n == 0 {
+		return 0
+	}
+	plain, _ := splitSealed(s.cur.Annots)
+	if s.cur.Doc == s.opened && len(plain) == 0 && !s.Security.Enabled() {
+		return 0
+	}
+	return n
+}

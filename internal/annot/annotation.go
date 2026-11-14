@@ -32,6 +32,16 @@ type Annotation struct {
 	// Fills are a typed signature's glyph outlines, closed polygons in
 	// the same unit coordinates, filled with the non-zero rule.
 	Fills [][]geom.Point
+	// Seal, on a signature, makes it a digital signature when the
+	// document is saved; nil leaves it a plain mark on the page.
+	Seal *Seal
+}
+
+// Seal is what a digital signature records besides the signer's ID.
+type Seal struct {
+	ID       string // fingerprint of the digital ID to sign with
+	Reason   string
+	Location string
 }
 
 // Clone returns a deep copy of a.
@@ -39,6 +49,10 @@ func (a Annotation) Clone() Annotation {
 	a.Points = append([]geom.Point(nil), a.Points...)
 	a.Strokes = clonePaths(a.Strokes)
 	a.Fills = clonePaths(a.Fills)
+	if a.Seal != nil {
+		seal := *a.Seal
+		a.Seal = &seal
+	}
 	return a
 }
 

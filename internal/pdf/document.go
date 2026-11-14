@@ -13,16 +13,35 @@ type Document struct {
 	Data  []byte
 	Pages []PageInfo
 	Meta  Metadata
+	// Display is Data with annotation appearances drawn into the pages,
+	// for rendering; it is Data itself when there are none.
+	Display []byte
+	// Signatures are the document's signature fields, checked.
+	Signatures []SignatureField
+	// Encrypted reports that the file was password protected; Data is
+	// the decrypted copy.
+	Encrypted bool
 }
 
 // Open parses data, decrypting it with password when it is protected.
 // ErrPassword reports a missing or wrong password.
+//
+// Decrypting rewrites the file, so the signatures are checked on the
+// original bytes.
 func Open(data []byte, password string) (*Document, error) {
 	plain, err := decrypt(data, password)
 	if err != nil {
 		return nil, err
 	}
-	return Load(plain)
+	doc, err := Load(plain)
+	if err != nil || len(plain) == len(data) && string(plain) == string(data) {
+		return doc, err
+	}
+	doc.Encrypted = true
+	if sigs, err := ReadSignatures(data, doc.Pages, password); err == nil {
+		doc.Signatures = sigs
+	}
+	return doc, nil
 }
 
 // Load parses unencrypted PDF bytes.
@@ -35,7 +54,15 @@ func Load(data []byte) (*Document, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Document{Data: data, Pages: pages, Meta: readMetadata(ctx)}, nil
+	display, err := displayCopy(data)
+	if err != nil {
+		display = data // still viewable, without annotation appearances
+	}
+	sigs, err := ReadSignatures(data, pages, "")
+	if err != nil {
+		sigs = nil // unreadable fields are shown as no signatures
+	}
+	return &Document{Data: data, Pages: pages, Meta: readMetadata(ctx), Display: display, Signatures: sigs}, nil
 }
 
 // PageCount returns the number of pages.
