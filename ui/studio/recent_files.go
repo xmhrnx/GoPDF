@@ -4,52 +4,41 @@ import (
 	"time"
 
 	"github.com/xmhrnx/giode"
+	"github.com/xmhrnx/giode/settings"
 
 	"gopdf/internal/recent"
 )
 
-// appFolder names the configuration folder.
+// appFolder names the folder digital IDs are kept in, beside the
+// settings.
 const appFolder = "gopdf"
 
-// recentFiles is the list on the welcome screen and in File > Open Recent.
+// recentFiles is the list on the welcome screen.
 type recentFiles struct {
-	store *recent.Store
-	list  []recent.Entry
+	list []recent.Entry
 }
 
-func newRecentFiles() *recentFiles {
-	store, err := recent.NewStore(appFolder)
-	if err != nil {
-		return &recentFiles{} // no config folder: the list stays empty
-	}
-	return &recentFiles{store: store}
-}
+func newRecentFiles() *recentFiles { return &recentFiles{} }
 
-// load reads the list on a background goroutine.
+// load reads the list on a background goroutine, dropping files that
+// are gone.
 func (r *recentFiles) load(s *Studio) {
-	if r.store == nil {
-		return
-	}
 	go func() {
-		list, err := r.store.Load()
-		s.win.Post(func() {
-			if err != nil {
-				s.toasts.Show(giode.ToastWarning, "Couldn't read recent files: "+err.Error())
-				return
-			}
-			r.list = list
-		})
+		list := recent.Existing(settings.Value(keyRecent, []recent.Entry(nil)))
+		s.win.Post(func() { r.list = list })
 	}()
 }
 
 // add records path as just opened.
 func (r *recentFiles) add(s *Studio, path string, pages int) {
-	if r.store == nil || path == "" {
+	if path == "" {
 		return
 	}
-	list, err := r.store.Add(r.list, recent.Entry{Path: path, Opened: time.Now(), Pages: pages})
-	r.list = list
-	if err != nil {
-		s.toasts.Show(giode.ToastWarning, "Couldn't save recent files: "+err.Error())
-	}
+	r.list = recent.Add(r.list, recent.Entry{Path: path, Opened: time.Now(), Pages: pages})
+	list := r.list
+	go func() {
+		if err := settings.Save(keyRecent, list); err != nil {
+			s.win.Post(func() { s.toasts.Show(giode.ToastWarning, "Couldn't save recent files: "+err.Error()) })
+		}
+	}()
 }

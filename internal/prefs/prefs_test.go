@@ -1,23 +1,23 @@
 package prefs
 
 import (
-	"path/filepath"
+	"encoding/json"
 	"testing"
 
 	"gopdf/internal/annot"
 )
 
-func TestStylesPerKind(t *testing.T) {
-	s := &Store{file: filepath.Join(t.TempDir(), "a", "prefs.json")}
+func TestStylesPerKindSurviveJSON(t *testing.T) {
 	var p Prefs
 	pen := annot.DefaultStyleFor(annot.Pen)
 	pen.Color, pen.Width = annot.Swatches[1], 8
 	p.SetStyle(annot.Pen, pen)
-	if err := s.Save(p); err != nil {
+	b, err := json.Marshal(p)
+	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := s.Load()
-	if err != nil {
+	var got Prefs
+	if err := json.Unmarshal(b, &got); err != nil {
 		t.Fatal(err)
 	}
 	if st := got.StyleFor(annot.Pen); st != pen {

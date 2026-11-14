@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/xmhrnx/giode"
+	"github.com/xmhrnx/giode/settings"
 
 	"gopdf/internal/annot"
 	"gopdf/internal/prefs"
@@ -16,9 +17,8 @@ import (
 const saveDelay = 400 * time.Millisecond
 
 // memory is what the app remembers between runs: the last style used
-// for each kind of markup, and the signature to place.
+// for each kind of markup, and the signature and ID to use.
 type memory struct {
-	store *prefs.Store
 	prefs prefs.Prefs
 
 	mu      sync.Mutex
@@ -26,28 +26,13 @@ type memory struct {
 	timer   *time.Timer
 }
 
-func newMemory() *memory {
-	store, err := prefs.NewStore(appFolder)
-	if err != nil {
-		return &memory{} // no config folder: remember for this run only
-	}
-	return &memory{store: store}
-}
+func newMemory() *memory { return &memory{} }
 
 // load reads the saved choices on a background goroutine.
 func (m *memory) load(s *Studio) {
-	if m.store == nil {
-		return
-	}
 	go func() {
-		p, err := m.store.Load()
-		s.win.Post(func() {
-			if err != nil {
-				s.toasts.Show(giode.ToastWarning, "Couldn't read your saved settings: "+err.Error())
-				return
-			}
-			m.prefs = p
-		})
+		p := settings.Value(keyPrefs, prefs.Prefs{})
+		s.win.Post(func() { m.prefs = p })
 	}()
 }
 
@@ -68,9 +53,6 @@ func (m *memory) setSignature(s *Studio, id string) {
 
 // save writes the prefs shortly, once changes stop coming.
 func (m *memory) save(s *Studio) {
-	if m.store == nil {
-		return
-	}
 	p := m.prefs
 	p.Styles = maps.Clone(m.prefs.Styles) // the UI goroutine keeps changing the original
 	m.mu.Lock()
@@ -91,7 +73,7 @@ func (m *memory) flush(s *Studio) {
 	if p == nil {
 		return
 	}
-	if err := m.store.Save(*p); err != nil {
+	if err := settings.Save(keyPrefs, *p); err != nil {
 		s.win.Post(func() { s.toasts.Show(giode.ToastWarning, "Couldn't save your settings: "+err.Error()) })
 	}
 }

@@ -42,6 +42,7 @@ func main() {
 	app := studio.New(logo, scripts)
 	win := giode.New(giode.Config{
 		Title:      "GoPDF",
+		Font:       theme.UIFont,
 		Size:       image.Pt(1360, 860),
 		MinSize:    image.Pt(900, 560),
 		Resizable:  true,

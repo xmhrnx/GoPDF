@@ -1,7 +1,6 @@
 package signature
 
 import (
-	"path/filepath"
 	"testing"
 
 	"gopdf/internal/geom"
@@ -30,17 +29,9 @@ func TestFromStrokesNormalizes(t *testing.T) {
 	}
 }
 
-func TestStoreRoundTrip(t *testing.T) {
-	s := &Store{file: filepath.Join(t.TempDir(), "app", "signatures.json")}
+func TestWithout(t *testing.T) {
 	sig, _ := FromStrokes([][]geom.Point{{{X: 0, Y: 0}, {X: 40, Y: 10}}})
-	if err := s.Save([]Signature{sig}); err != nil {
-		t.Fatal(err)
-	}
-	list, err := s.Load()
-	if err != nil || len(list) != 1 || list[0].ID != sig.ID {
-		t.Fatalf("loaded %v, %v", list, err)
-	}
-	if len(Without(list, sig.ID)) != 0 {
+	if len(Without([]Signature{sig}, sig.ID)) != 0 {
 		t.Fatal("Without kept the signature")
 	}
 }

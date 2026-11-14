@@ -1,33 +1,35 @@
 package theme
 
 import (
-	"fmt"
 	"io/fs"
+	"path"
 
-	"gioui.org/font"
-	"gioui.org/font/opentype"
 	"github.com/xmhrnx/giode"
 )
 
-// RegisterFonts makes the Inter files in fsys (under dir) the only
-// typeface, so every component, not only styled text, uses it.
+// UIFont is the interface's typeface; main passes it as Config.Font, so
+// every component uses it.
+const UIFont = "Inter"
+
+// uiFontFiles are the weights of UIFont in the font folder.
+var uiFontFiles = []struct {
+	file   string
+	weight giode.FontWeight
+}{
+	{"Inter-Regular.ttf", giode.FontWeightNormal},
+	{"Inter-Medium.ttf", giode.FontWeightMedium},
+	{"Inter-SemiBold.ttf", giode.FontWeightSemiBold},
+}
+
+// RegisterFonts registers UIFont's weights from dir in fsys.
 func RegisterFonts(fsys fs.FS, dir string) error {
-	files, err := fs.Glob(fsys, dir+"/*.ttf")
-	if err != nil {
-		return err
-	}
-	var faces []font.FontFace
-	for _, name := range files {
-		data, err := fs.ReadFile(fsys, name)
+	files := make([]giode.FontFile, 0, len(uiFontFiles))
+	for _, f := range uiFontFiles {
+		data, err := fs.ReadFile(fsys, path.Join(dir, f.file))
 		if err != nil {
 			return err
 		}
-		parsed, err := opentype.ParseCollection(data)
-		if err != nil {
-			return fmt.Errorf("font %s: %w", name, err)
-		}
-		faces = append(faces, parsed...)
+		files = append(files, giode.FontFile{Family: UIFont, Weight: f.weight, Data: data})
 	}
-	giode.RegisterFonts(faces)
-	return nil
+	return giode.RegisterFont(files...)
 }

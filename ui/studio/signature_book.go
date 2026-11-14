@@ -2,38 +2,23 @@ package studio
 
 import (
 	"github.com/xmhrnx/giode"
+	"github.com/xmhrnx/giode/settings"
 
 	"gopdf/internal/signature"
 )
 
 // signatureBook holds the saved signatures.
 type signatureBook struct {
-	store *signature.Store
-	list  []signature.Signature
+	list []signature.Signature
 }
 
-func newSignatureBook() *signatureBook {
-	store, err := signature.NewStore(appFolder)
-	if err != nil {
-		return &signatureBook{}
-	}
-	return &signatureBook{store: store}
-}
+func newSignatureBook() *signatureBook { return &signatureBook{} }
 
 // load reads the saved signatures on a background goroutine.
 func (b *signatureBook) load(s *Studio) {
-	if b.store == nil {
-		return
-	}
 	go func() {
-		list, err := b.store.Load()
-		s.win.Post(func() {
-			if err != nil {
-				s.toasts.Show(giode.ToastWarning, "Couldn't read your signatures: "+err.Error())
-				return
-			}
-			b.list = list
-		})
+		list := settings.Value(keySignatures, []signature.Signature(nil))
+		s.win.Post(func() { b.list = list })
 	}()
 }
 
@@ -66,12 +51,9 @@ func (b *signatureBook) remove(s *Studio, id string) {
 }
 
 func (b *signatureBook) save(s *Studio) {
-	if b.store == nil {
-		return
-	}
 	list := b.list
 	go func() {
-		if err := b.store.Save(list); err != nil {
+		if err := settings.Save(keySignatures, list); err != nil {
 			s.win.Post(func() { s.toasts.Show(giode.ToastError, "Couldn't save signatures: "+err.Error()) })
 		}
 	}()

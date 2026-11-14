@@ -18,6 +18,7 @@ const titleMaxWidth = 320
 type titleBar struct {
 	s     *Studio
 	bar   *titlebar.TitleBar
+	menus *menus
 	theme *components.ToolButton
 	panel *components.ToolButton
 }
@@ -29,11 +30,10 @@ func newTitleBar(s *Studio) *titleBar {
 		Active(func() bool { return s.view.inspector }).Enabled(s.hasDoc)
 	m := newMenus(s)
 	mb := giode.MenuBar().OpenOnHover(true)
-	// Each panel is laid out beside its trigger: laid out elsewhere, a
-	// panel opened by hovering shows under the first menu instead.
 	item := func(menu *menu.Menu, label string) giode.Element {
-		return giode.Row(giode.Styles{}, mb.Add(menu, components.MenuLabel(label)), menu)
+		return mb.Add(menu, components.MenuLabel(label))
 	}
+	t.menus = m
 	t.bar = giode.TitleBar(s.win, "GoPDF", giode.Styles{
 		Height: theme.TitleBarHeight, Background: theme.Surface, Color: theme.TextColor,
 		BorderWidth: 1, BorderColor: theme.Border, FontSize: 12.5,
@@ -53,6 +53,12 @@ func newTitleBar(s *Studio) *titleBar {
 		Trailing(giode.Raw(t.trailing)).
 		OnClose(s.OnClose)
 	return t
+}
+
+// panels are the menus' drop-down panels, laid out with the overlays.
+func (t *titleBar) panels() []giode.Element {
+	m := t.menus
+	return []giode.Element{m.file, m.edit, m.view, m.page, m.tools, m.help}
 }
 
 // View returns the bar with the current document name.

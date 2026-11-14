@@ -99,12 +99,12 @@ func (v *views) workspace() giode.Element {
 
 // overlays paint above the window and take no layout space.
 func (v *views) overlays() []giode.Element {
-	return []giode.Element{
+	return append(v.titleBar.panels(),
 		dropOverlay(v.s.dragOver),
 		v.pageMenu.menu,
 		v.password.dialog, v.unsaved.dialog, v.properties.dialog, v.watermark.dialog,
 		v.pageNumbers.dialog, v.security.dialog, v.extract.dialog, v.split.dialog, v.shortcuts.dialog, v.signer.dialog,
 		v.digitalIDs.dialog, v.sigDetails.dialog, v.unlockID.dialog, v.confirm.dialog,
 		v.s.toasts,
-	}
+	)
 }

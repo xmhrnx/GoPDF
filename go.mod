@@ -4,11 +4,14 @@ go 1.27.0
 
 require (
 	gioui.org v0.10.2
+	github.com/digitorus/pdf v0.3.0
+	github.com/digitorus/pdfsign v1.0.0
 	github.com/gen2brain/go-fitz v1.28.2
 	github.com/pdfcpu/pdfcpu v0.16.4
-	github.com/xmhrnx/giode v1.0.21-alpha.1
+	github.com/xmhrnx/giode v1.0.22-alpha.1
 	golang.org/x/image v0.47.0
 	golang.org/x/text v0.43.0
+	software.sslmate.com/src/go-pkcs12 v0.7.4
 )
 
 require (
@@ -18,8 +21,6 @@ require (
 	git.sr.ht/~jackmordaunt/go-toast v1.0.0 // indirect
 	git.wow.st/gmp/jni v0.0.0-20210610011705-34026c7e22d0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
-	github.com/digitorus/pdf v0.3.0 // indirect
-	github.com/digitorus/pdfsign v1.0.0 // indirect
 	github.com/digitorus/pkcs7 v0.0.0-20260914070511-d678ea5ea03f // indirect
 	github.com/digitorus/timestamp v0.0.0-20250524132541-c45532741eea // indirect
 	github.com/ebitengine/purego v0.10.1 // indirect
@@ -38,5 +39,4 @@ require (
 	golang.org/x/exp/shiny v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
 	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
-	software.sslmate.com/src/go-pkcs12 v0.7.4 // indirect
 )
