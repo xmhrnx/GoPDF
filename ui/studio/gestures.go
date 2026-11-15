@@ -4,7 +4,6 @@ import (
 	"github.com/xmhrnx/giode"
 
 	"gopdf/internal/annot"
-	"gopdf/internal/digitalid"
 	"gopdf/internal/editor"
 	"gopdf/internal/geom"
 )
@@ -65,29 +64,17 @@ func (s *Studio) placeText(page int, p geom.Point) {
 	s.ui.inspector.editText()
 }
 
-// placeSignature puts the active signature centered at p as a digital
-// signature. Without a saved signature it asks for one, and without a
-// digital ID it asks who is signing, then places it.
+// placeSignature puts the active signature centered at p, sealed with
+// its digital ID when it has one, or asks for a new signature first.
 func (s *Studio) placeSignature(page int, p geom.Point) {
 	sig, ok := s.signatures.active(s)
 	if !ok {
 		s.ui.signer.show(func() { s.placeSignature(page, p) })
 		return
 	}
-	id := s.defaultDigitalID()
-	if id == "" && !s.skipSealing {
-		s.ui.digitalIDs.ask(
-			func(digitalid.Info) { s.placeSignature(page, p) },
-			func() {
-				s.skipSealing = true
-				s.placeSignature(page, p)
-				s.skipSealing = false
-			})
-		return
-	}
 	a := annot.NewSignature(editor.NewID(), page, p, sig.Strokes, sig.Fills, sig.Aspect, s.memory.style(annot.Signature))
-	if id != "" {
-		a.Seal = &annot.Seal{ID: id}
+	if _, known := s.ids.info(sig.DigitalID); known {
+		a.Seal = &annot.Seal{ID: sig.DigitalID}
 	}
 	s.keepOnPage(&a)
 	s.doc.AddAnnotation(a)

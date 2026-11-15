@@ -28,7 +28,10 @@ type Signature struct {
 	Strokes [][]geom.Point `json:"strokes,omitempty"`
 	Fills   [][]geom.Point `json:"fills,omitempty"`
 	Aspect  float64        `json:"aspect"`
-	Created time.Time      `json:"created"`
+	// DigitalID is the fingerprint of the digital ID that signs when this
+	// signature is placed; empty for a mark without one.
+	DigitalID string    `json:"digitalId,omitempty"`
+	Created   time.Time `json:"created"`
 }
 
 // FromStrokes builds a signature from strokes drawn in any units (dp on

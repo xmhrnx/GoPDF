@@ -38,8 +38,15 @@ func newSignatureCard(s *Studio, sig signature.Signature) *signatureCard {
 // View returns the card, highlighted when it is the one placed.
 func (c *signatureCard) View(active bool) giode.Element {
 	c.active = active
-	return giode.Row(giode.Styles{Width: -1, Gap: 4, Align: giode.AlignCenter, Wrap: giode.WrapNoWrap},
-		c.press, c.remove.View())
+	signer := "No digital ID: a mark only"
+	if info, ok := c.s.ids.info(c.sig.DigitalID); ok {
+		signer = "Signs as " + info.Identity.Name
+	}
+	return giode.Stack(giode.Styles{Width: -1, Gap: 4},
+		giode.Row(giode.Styles{Width: -1, Gap: 4, Align: giode.AlignCenter, Wrap: giode.WrapNoWrap},
+			c.press, c.remove.View()),
+		giode.Text(signer, theme.Caption),
+	)
 }
 
 func (c *signatureCard) content(st giode.PressState) giode.Element {

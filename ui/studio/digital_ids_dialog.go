@@ -3,7 +3,6 @@ package studio
 import (
 	"context"
 	"io"
-	"strings"
 
 	"github.com/xmhrnx/giode"
 	"github.com/xmhrnx/giode/components/dialog"
@@ -27,8 +26,6 @@ type digitalIDsDialog struct {
 	open     bool
 	problem  string
 	then     func(digitalid.Info) // runs with a new ID, when opened to get one
-	skip     func()               // runs when the user goes on without an ID
-	asking   bool                 // opened to ask who is signing a signature being placed
 	mode     *segmented.Control
 	name     *input.Input
 	email    *input.Input
@@ -39,7 +36,6 @@ type digitalIDsDialog struct {
 	choose   *giode.ButtonElement
 	fileName string
 	done     *giode.ButtonElement
-	without  *giode.ButtonElement
 	add      *giode.ButtonElement
 	dialog   *dialog.Dialog
 }
@@ -55,39 +51,19 @@ func newDigitalIDsDialog(s *Studio) *digitalIDsDialog {
 	d.choose = components.NewSecondaryButton("Choose File…", d.pickFile).Icon(theme.Icon("folder-open", 15, ""))
 	d.add = components.NewPrimaryButton("Add Digital ID", d.submit)
 	d.done = components.NewSecondaryButton("Close", func() { d.open = false })
-	d.without = components.NewSecondaryButton("Place Without ID", func() {
-		d.open = false
-		d.skip()
-	})
 	d.dialog = components.NewDialog(&d.open, d.content)
 	return d
 }
 
 // show opens the manager; then, when not nil, receives the next ID added.
 func (d *digitalIDsDialog) show(then func(digitalid.Info)) {
-	d.then, d.skip, d.asking, d.problem, d.open = then, nil, false, "", true
+	d.then, d.problem, d.open = then, "", true
 	d.mode.SetSelected(idModeCreate)
 	for _, f := range []*input.Input{d.pass, d.confirm} {
 		f.SetText("")
 	}
 	if len(d.s.ids.list) == 0 {
 		d.name.Focus()
-	}
-}
-
-// ask opens the dialog to learn who is signing a signature about to be
-// placed: then receives the new ID; skip places it without one.
-func (d *digitalIDsDialog) ask(then func(digitalid.Info), skip func()) {
-	d.show(then)
-	d.skip, d.asking = skip, true
-	d.add.Label("Continue")
-}
-
-// suggestName fills the name field with name, typed for a signature,
-// unless the user already wrote one there.
-func (d *digitalIDsDialog) suggestName(name string) {
-	if strings.TrimSpace(d.name.Text()) == "" {
-		d.name.SetText(strings.TrimSpace(name))
 	}
 }
 
@@ -145,7 +121,6 @@ func (d *digitalIDsDialog) submit() {
 			d.confirm.SetText("")
 			d.s.ids.added(info)
 			d.s.toasts.Show(giode.ToastSuccess, "Digital ID added for "+info.Identity.Name)
-			d.add.Label("Add Digital ID")
 			if d.then != nil {
 				d.open = false
 				d.then(info)
@@ -180,11 +155,6 @@ func (d *digitalIDsDialog) content() giode.Element {
 	body := []giode.Element{idList(d.s), d.mode, form}
 	if d.problem != "" {
 		body = append(body, giode.Text(d.problem, giode.Styles{FontSize: 12, Color: theme.Danger}))
-	}
-	if d.asking {
-		return components.DialogFrame("badge-check", "Who is signing?",
-			"Your name, email and organization are sealed into the signature, so readers can see who signed and check that nothing changed. The password protects your digital ID on this computer.",
-			giode.Stack(giode.Styles{Width: -1, Gap: 14}, body[1:]...), d.without, d.add)
 	}
 	return components.DialogFrame("badge-check", "Digital IDs",
 		"A digital ID signs documents in your name. It's stored on this computer, protected by its password.",

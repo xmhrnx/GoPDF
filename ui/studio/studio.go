@@ -41,19 +41,18 @@ type Studio struct {
 	outline  []pdf.OutlineItem
 	busy     string // what runs in the background, "" when idle
 
-	tool        Tool
-	memory      *memory        // per-kind styles and the active signature, kept on disk
-	signatures  *signatureBook // saved signatures
-	ids         *digitalIDs    // digital IDs to sign with
-	clipboard   *clipboard     // copied markup
-	nudging     nudgeState     // groups arrow-key moves into one undo step
-	live        liveGroup      // groups continuous style edits into one undo step
-	selected    int64          // selected annotation ID, 0 for none
-	skipSealing bool           // place the next signature without a digital ID
-	drawing     *annot.Annotation
-	moving      *moveGesture
-	view        viewState
-	dragOver    bool
+	tool       Tool
+	memory     *memory        // per-kind styles and the active signature, kept on disk
+	signatures *signatureBook // saved signatures
+	ids        *digitalIDs    // digital IDs to sign with
+	clipboard  *clipboard     // copied markup
+	nudging    nudgeState     // groups arrow-key moves into one undo step
+	live       liveGroup      // groups continuous style edits into one undo step
+	selected   int64          // selected annotation ID, 0 for none
+	drawing    *annot.Annotation
+	moving     *moveGesture
+	view       viewState
+	dragOver   bool
 
 	ui *views
 }
