@@ -3,12 +3,11 @@ module gopdf
 go 1.27.0
 
 require (
-	gioui.org v0.10.2
 	github.com/digitorus/pdf v0.3.0
 	github.com/digitorus/pdfsign v1.0.0
 	github.com/gen2brain/go-fitz v1.28.2
 	github.com/pdfcpu/pdfcpu v0.16.4
-	github.com/xmhrnx/giode v1.0.22-alpha.1
+	github.com/xmhrnx/giode v1.0.25-alpha.1
 	golang.org/x/image v0.47.0
 	golang.org/x/text v0.43.0
 	software.sslmate.com/src/go-pkcs12 v0.7.4
@@ -16,6 +15,7 @@ require (
 
 require (
 	fyne.io/systray v1.12.2 // indirect
+	gioui.org v0.10.2 // indirect
 	gioui.org/shader v1.0.9 // indirect
 	gioui.org/x v0.10.2 // indirect
 	git.sr.ht/~jackmordaunt/go-toast v1.0.0 // indirect
