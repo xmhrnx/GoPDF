@@ -6,7 +6,7 @@ name = "GoPDF"
 id = "com.example.gopdf"            # reverse-DNS, unique to your app; stores never let it change
 version = "0.1.0"
 build = 1                    # raise for every store upload (giode bump)
-icon = "assets/icon.png"     # replace the placeholder (see assets/README.md)
+icon = "assets/icon.png"     # 1024x1024, used for the window and every package
 package = "."
 platforms = ["linux", "windows", "macos"]   # what giode build builds with no target named
 publisher = "GoPDF"
@@ -19,6 +19,9 @@ min_os = 11
 # identity = "Developer ID Application: Your Name (TEAMID)"  # signs giode build -release
 # notary_id = "you@example.com"     # notarizes, with the password in $GIODE_NOTARY_PASS
 # notary_team_id = "TEAMID"
+
+[macos.plist]
+LSApplicationCategoryType = "public.app-category.productivity"
 
 [windows]
 arch = "amd64"
@@ -37,7 +40,7 @@ arch = "amd64"
 
 [linux]
 categories = ["Office", "Viewer"]     # freedesktop menu categories
-# license = "MIT"            # SPDX, for .deb, .rpm and AppStream
+license = "Apache-2.0"       # SPDX, for .deb, .rpm and AppStream
 
 [[file_types]]
 name = "PDF document"
