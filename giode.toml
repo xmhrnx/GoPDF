@@ -11,7 +11,7 @@ package = "."
 platforms = ["linux", "windows", "macos"]   # what giode build builds with no target named
 publisher = "GoPDF"
 description = "A fast, native PDF editor: annotate, organize, merge, split and protect PDFs."
-website = ""
+website = "https://xmhrnx.github.io/GoPDF/"
 ldflags = "-s -w"            # strip symbols: a smaller download
 
 [macos]

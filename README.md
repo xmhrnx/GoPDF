@@ -4,6 +4,8 @@ A fast, native PDF editor built with [Giode](https://github.com/xmhrnx/giode) (G
 rendered, no web view). It runs in a custom frameless window with its own title bar, menus
 and window buttons.
 
+Website: <https://xmhrnx.github.io/GoPDF/> (source in `site/`).
+
 ## Features
 
 - **View:** continuous scrolling with lazily rendered pages, fit-width and zoom from 25 to

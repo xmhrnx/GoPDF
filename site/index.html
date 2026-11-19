@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GoPDF — a fast, native PDF editor</title>
+<meta name="description" content="GoPDF is a fast, native PDF editor for Linux, Windows and macOS: annotate, sign, organize, merge, split and protect PDFs.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e4e6eb;
+  --primary: #4f46e5;
+  --accent: #7c3aed;
+  --coral: #f47b5c;
+  --cream: #fde7cf;
+  --ink: #4b44d6;
+  --mark: #fde68a;
+  --rule: #dfe2fb;
+  --hero-a: #2e2a7a;
+  --hero-b: #6550dc;
+  --shadow: 0 30px 60px -20px rgba(15, 23, 42, .28), 0 8px 18px -8px rgba(15, 23, 42, .18);
+  --radius: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --surface: #171a20;
+    --text: #e8eaef;
+    --muted: #8b93a3;
+    --border: #262a33;
+    --primary: #818cf8;
+    --accent: #a78bfa;
+    --rule: #2a2e48;
+    --mark: #a1782a;
+    --shadow: 0 30px 60px -20px rgba(0, 0, 0, .7), 0 8px 18px -8px rgba(0, 0, 0, .5);
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: var(--primary); }
+img { max-width: 100%; display: block; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+/* Top bar */
+.top {
+  position: absolute; inset: 0 0 auto 0; z-index: 3;
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1120px; margin: 0 auto; padding: 20px 24px;
+}
+.brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 700; letter-spacing: -.01em; }
+.brand img { width: 34px; height: 34px; }
+.top nav { display: flex; gap: 22px; }
+.top nav a { color: rgba(255,255,255,.82); text-decoration: none; font-size: 14px; font-weight: 500; }
+.top nav a:hover { color: #fff; }
+
+/* Hero */
+.hero {
+  position: relative;
+  color: #fff;
+  background:
+    radial-gradient(1200px 500px at 85% -10%, rgba(244,123,92,.22), transparent 60%),
+    linear-gradient(135deg, var(--hero-a), var(--hero-b));
+  padding: 120px 0 110px;
+  overflow: hidden;
+}
+.hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 100px;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  pointer-events: none;
+}
+.hero-grid {
+  display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center;
+  position: relative; z-index: 1;
+}
+.hero h1 {
+  font-size: clamp(42px, 6.4vw, 76px); line-height: 1; letter-spacing: -.04em; margin: 0 0 18px; font-weight: 800;
+}
+.hero h1 .script {
+  display: block; font-family: "Great Vibes", cursive; font-weight: 400; letter-spacing: 0;
+  color: var(--coral); font-size: .9em; margin-top: 6px;
+}
+.hero p.lead { font-size: 19px; color: rgba(255,255,255,.84); max-width: 30em; margin: 0 0 30px; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 13px 22px; border-radius: 12px; font-weight: 600; font-size: 15px; text-decoration: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-coral { background: var(--coral); color: #2b1209; box-shadow: 0 10px 24px -10px rgba(244,123,92,.9); }
+.btn-ghost { color: #fff; border: 1px solid rgba(255,255,255,.35); }
+.btn svg { width: 18px; height: 18px; }
+.platforms-line { margin-top: 18px; font-size: 13px; color: rgba(255,255,255,.65); }
+
+/* The illustrated page */
+.stage { position: relative; height: 570px; }
+.sheet {
+  position: absolute; left: 50%; top: 20px; width: 380px; height: 500px; margin-left: -190px;
+  background: #fff; color: #1f2937; border-radius: 14px; box-shadow: var(--shadow);
+  transform: rotate(-4deg); padding: 40px 36px;
+}
+.sheet.back { transform: rotate(5deg) translate(26px, 10px); background: #e8e9fb; }
+.sheet .corner {
+  position: absolute; right: 0; top: 0; width: 64px; height: 64px;
+  background: linear-gradient(225deg, transparent 50%, #c9cff8 50%);
+  border-top-right-radius: 14px;
+}
+.sheet h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.01em; }
+.sheet .meta { font-size: 11px; color: #9ca3af; margin-bottom: 22px; }
+.line { height: 9px; border-radius: 5px; background: #e5e7f6; margin: 11px 0; }
+.line.w90 { width: 90%; } .line.w70 { width: 70%; } .line.w80 { width: 80%; } .line.w55 { width: 55%; }
+.hl { position: relative; }
+.hl::before { content: ""; position: absolute; inset: -4px -6px; background: #fde68a; border-radius: 3px; opacity: .85; z-index: -1; }
+.hl-wrap { position: relative; z-index: 0; }
+.box-note {
+  position: absolute; right: 26px; top: 128px; width: 132px;
+  border: 2px solid var(--coral); border-radius: 6px; padding: 7px 9px; font-size: 11px; line-height: 1.35; color: #9a3412; background: #fff7f2;
+  transform: rotate(3deg);
+}
+.arrow { position: absolute; right: 150px; top: 168px; width: 70px; height: 40px; }
+.sig-area { position: absolute; left: 36px; right: 36px; bottom: 54px; }
+.sig {
+  font-family: "Great Vibes", cursive; font-size: 46px; color: var(--ink); line-height: 1; margin-left: 6px;
+}
+.sig-rule { height: 1px; background: #cbd5e1; margin-top: 2px; }
+.sig-label { font-size: 10px; color: #9ca3af; margin-top: 5px; display: flex; justify-content: space-between; }
+.seal {
+  position: absolute; right: 30px; bottom: 112px;
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 99px;
+  background: #dcfce7; color: #166534; font-size: 11px; font-weight: 600;
+}
+.seal svg { width: 13px; height: 13px; }
+.stamp {
+  position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%) rotate(-28deg);
+  font-weight: 800; font-size: 54px; letter-spacing: .12em; color: rgba(79,70,229,.08); pointer-events: none;
+}
+.pageno { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font-size: 10px; color: #9ca3af; }
+.caption { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-size: 12px; color: rgba(255,255,255,.55); }
+
+/* Sections */
+section { padding: 88px 0; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+h2 { font-size: clamp(30px, 4vw, 44px); line-height: 1.1; letter-spacing: -.03em; margin: 0 0 16px; }
+.section-lead { color: var(--muted); font-size: 18px; max-width: 40em; margin: 0 0 44px; }
+
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 26px; position: relative; overflow: hidden;
+}
+.card .ico {
+  width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 16px;
+  background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary);
+}
+.card .ico svg { width: 22px; height: 22px; }
+.card h3 { margin: 0 0 8px; font-size: 18px; letter-spacing: -.01em; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.card.wide { grid-column: span 2; }
+.card.coral .ico { background: color-mix(in srgb, var(--coral) 18%, transparent); color: var(--coral); }
+.card.signature {
+  background: linear-gradient(140deg, var(--hero-a), var(--hero-b)); color: #fff; border: 0;
+}
+.card.signature p { color: rgba(255,255,255,.8); }
+.card.signature .ico { background: rgba(255,255,255,.14); color: #fff; }
+.card.signature .flourish {
+  font-family: "Great Vibes", cursive; font-size: 64px; color: var(--coral); line-height: 1;
+  position: absolute; right: 24px; top: 14px; opacity: .9; pointer-events: none;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.chip { font-size: 12px; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); }
+.card.signature .chip { border-color: rgba(255,255,255,.25); color: rgba(255,255,255,.85); }
+
+/* Under the hood */
+.hood { background: var(--surface); border-block: 1px solid var(--border); }
+.hood-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.facts { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+.facts li { display: grid; grid-template-columns: 120px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px dashed var(--border); }
+.facts li:last-child { border-bottom: 0; }
+.facts b { font-size: 26px; letter-spacing: -.03em; color: var(--primary); line-height: 1.2; }
+.facts span { color: var(--muted); font-size: 15px; }
+kbd {
+  font: 600 12px/1 Inter, system-ui, sans-serif; padding: 4px 7px; border-radius: 6px;
+  border: 1px solid var(--border); border-bottom-width: 2px; background: var(--bg); color: var(--text);
+}
+
+/* Download */
+.download { text-align: center; }
+.download .section-lead { margin-left: auto; margin-right: auto; }
+.oses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 820px; margin: 0 auto 28px; }
+.os {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 26px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  text-decoration: none; color: var(--text); font-weight: 600;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.os:hover { border-color: var(--primary); transform: translateY(-2px); }
+.os svg { width: 34px; height: 34px; color: var(--primary); }
+.os span { display: flex; flex-direction: column; align-items: center; }
+.os small { color: var(--muted); font-weight: 400; font-size: 13px; }
+.build-from {
+  max-width: 820px; margin: 0 auto; text-align: left;
+  background: #14121f; color: #e7e5f6; border-radius: var(--radius); padding: 22px 24px; font-size: 14px;
+  overflow-x: auto;
+}
+.build-from code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; display: block; line-height: 1.8; }
+.build-from .c { color: #8b87b3; }
+.build-from .p { color: var(--coral); user-select: none; }
+
+footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
+.foot { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 28px; }
+.foot a { color: var(--muted); }
+.foot .brand { color: var(--text); }
+
+@media (max-width: 920px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 24px; }
+  .hero { padding-top: 104px; padding-bottom: 90px; }
+  .stage { height: 560px; }
+  .features { grid-template-columns: 1fr 1fr; }
+  .hood-grid { grid-template-columns: 1fr; gap: 28px; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 0 16px; }
+  .top { padding: 16px; }
+  .top nav { gap: 14px; }
+  .top nav a.opt { display: none; }
+  .hero p.lead { font-size: 17px; }
+  .features { grid-template-columns: 1fr; }
+  .card.wide { grid-column: auto; }
+  .oses { grid-template-columns: 1fr; }
+  .os { flex-direction: row; justify-content: flex-start; padding: 18px; }
+  .os span { display: flex; flex-direction: column; align-items: flex-start; }
+  section { padding: 64px 0; }
+  .stage { height: 480px; }
+  .card.signature .flourish { font-size: 48px; }
+  .sheet { width: 300px; height: 400px; margin-left: -150px; padding: 30px 26px; }
+  .box-note { width: 112px; right: 16px; top: 112px; font-size: 10px; }
+  .arrow { display: none; }
+  .sig { font-size: 38px; }
+  .sig-area { left: 26px; right: 26px; bottom: 44px; }
+  .seal { right: 18px; bottom: 96px; }
+  .facts li { grid-template-columns: 92px 1fr; }
+  .facts b { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="top">
+    <a class="brand" href="#"><img src="img/favicon.png" alt="">GoPDF</a>
+    <nav>
+      <a class="opt" href="#features">Features</a>
+      <a class="opt" href="#hood">Under the hood</a>
+      <a href="#download">Download</a>
+      <a href="https://github.com/xmhrnx/GoPDF">GitHub</a>
+    </nav>
+  </div>
+
+  <div class="wrap hero-grid">
+    <div>
+      <img src="img/icon.png" alt="GoPDF icon" width="96" height="96" style="width:96px;height:96px;margin:0 0 18px -8px">
+      <h1>Edit your PDFs.<span class="script">then sign them.</span></h1>
+      <p class="lead">A fast, native PDF editor: annotate, organize, merge, split and protect PDFs, and sign them by hand or with a digital ID. No web view, no account, no cloud.</p>
+      <div class="cta">
+        <a class="btn btn-coral" href="https://github.com/xmhrnx/GoPDF/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+          Download
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/xmhrnx/GoPDF">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+          Source code
+        </a>
+      </div>
+      <div class="platforms-line">Linux · Windows · macOS — free and open source (Apache 2.0)</div>
+    </div>
+
+    <div class="stage" aria-hidden="true">
+      <div class="sheet back"></div>
+      <div class="sheet">
+        <div class="corner"></div>
+        <div class="stamp">DRAFT</div>
+        <h3>Lease agreement</h3>
+        <div class="meta">Page 3 of 8</div>
+        <div class="line w90"></div>
+        <div class="line w80"></div>
+        <div class="hl-wrap"><div class="line w70 hl"></div></div>
+        <div class="line w90"></div>
+        <div class="line w55"></div>
+        <div class="line w80"></div>
+        <div class="line w70"></div>
+        <div class="box-note">Check the start date before signing.</div>
+        <svg class="arrow" viewBox="0 0 70 40" fill="none" stroke="#f47b5c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M66 8 C 46 6, 22 14, 8 32"/><path d="M8 20 L8 32 L20 30"/></svg>
+        <span class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>Signed · unchanged</span>
+        <div class="sig-area">
+          <div class="sig">Alex Morgan</div>
+          <div class="sig-rule"></div>
+          <div class="sig-label"><span>Signature</span><span>Date</span></div>
+        </div>
+        <div class="pageno">— 3 —</div>
+      </div>
+      <div class="caption">An illustration of the kinds of markup GoPDF adds</div>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="features">
+  <div class="wrap">
+    <p class="eyebrow">What it does</p>
+    <h2>Everything you reach for, in one quick window.</h2>
+    <p class="section-lead">Open several documents, mark them up, rearrange their pages and save. On save your markup is drawn into the page content, so every PDF viewer shows it.</p>
+
+    <div class="features">
+      <div class="card wide">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.38 3.62a1 1 0 0 1 3 3L7.37 18.64a2 2 0 0 1-.85.5l-2.87.84a.5.5 0 0 1-.62-.62l.84-2.87a2 2 0 0 1 .5-.85z"/></svg></div>
+        <h3>Annotate</h3>
+        <p>Text boxes, pen, marker, area highlight, rectangle, ellipse, line, arrow and whiteout, with colors, stroke widths, fill and font sizes. Select markup to move it with the mouse or the arrow keys, restyle it, edit its text, copy, paste, duplicate or delete it.</p>
+        <div class="chips"><span class="chip">Text</span><span class="chip">Pen</span><span class="chip">Marker</span><span class="chip">Highlight</span><span class="chip">Shapes</span><span class="chip">Arrows</span><span class="chip">Whiteout</span></div>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg></div>
+        <h3>Undo anything</h3>
+        <p>Undo and redo up to 100 steps, and a warning before unsaved changes are lost.</p>
+      </div>
+
+      <div class="card signature wide">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 17-2.16-1.86a2 2 0 0 0-2.64.06l-.4.37a2 2 0 0 1-2.66.04L12 14.2"/><path d="M3 21c3-1.5 4-6 4-9a4 4 0 1 1 8 0c0 3-4 6.5-7 9"/><path d="M3 21h18"/></svg></div>
+        <h3>Sign — by hand, or with a digital ID</h3>
+        <p>Draw a signature, or type your name and pick one of six script typefaces; typed signatures are saved as vector outlines. Turn a placed signature into a digital one (PAdES) with a self-signed ID or an imported <code>.p12</code>/<code>.pfx</code>. Opening a signed PDF tells you who signed and whether it changed since — checked offline.</p>
+        <div class="chips"><span class="chip">Drawn</span><span class="chip">Typed</span><span class="chip">PAdES</span><span class="chip">Offline checks</span></div>
+        <div class="flourish">Signed</div>
+      </div>
+      <div class="card coral">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3>Protect</h3>
+        <p>Open password-protected files, and encrypt with AES-256 when you save.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>
+        <h3>Organize</h3>
+        <p>Rotate, duplicate, reorder, insert blank pages and delete pages. Markup moves with its page.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-3a2 2 0 0 1-2-2V2"/><path d="M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z"/><path d="M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8"/></svg></div>
+        <h3>Merge &amp; split</h3>
+        <p>Merge PDFs, extract page ranges like <code>1-3, 5, 8-</code> into a new file, or split a document into parts of N pages.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13"/></svg></div>
+        <h3>Stamp</h3>
+        <p>Text watermarks with size, angle, opacity and color, and page numbers.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+        <h3>View</h3>
+        <p>Continuous scrolling, fit-width and zoom from 25 to 400 %, thumbnails, the outline and full-text search.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></div>
+        <h3>Document</h3>
+        <p>Edit title, author, subject and keywords. Export a page as PNG, or all of the text as <code>.txt</code>.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
+        <h3>Feels at home</h3>
+        <p>Light and dark themes, drag-and-drop opening, recent files, and it remembers the colors and sizes you last used.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="hood" class="hood">
+  <div class="wrap hood-grid">
+    <div>
+      <p class="eyebrow">Under the hood</p>
+      <h2>Native, GPU-rendered, and light.</h2>
+      <p class="section-lead" style="margin-bottom:24px">GoPDF is written in Go with <a href="https://github.com/xmhrnx/giode">Giode</a> on Gio — no web view. It renders with MuPDF and edits with pdfcpu, in a frameless window with its own title bar, menus and window buttons.</p>
+      <p style="color:var(--muted);margin:0">Keyboard shortcuts for everything: press <kbd>Ctrl</kbd> <kbd>O</kbd> (<kbd>⌘</kbd> <kbd>O</kbd> on a Mac) to open a file, and find the full list under Help › Keyboard Shortcuts.</p>
+    </div>
+    <ul class="facts">
+      <li><b>1–2 ms</b><span>to build a frame. Only the pages in view are laid out and rendered, on a background goroutine.</span></li>
+      <li><b>LRU</b><span>Rendered pages live in a small cache (10 pages, 240 thumbnails); while a sharper render is on its way, the closest cached one is shown.</span></li>
+      <li><b>48 MB</b><span>cap on MuPDF's resource cache, with a stripped binary.</span></li>
+      <li><b>Offline</b><span>Signature checks run on your machine; nothing is uploaded.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="download" class="download">
+  <div class="wrap">
+    <p class="eyebrow">Download</p>
+    <h2>Get GoPDF.</h2>
+    <p class="section-lead">Builds for each platform are attached to the latest release on GitHub.</p>
+    <div class="oses">
+      <a class="os" href="https://github.com/xmhrnx/GoPDF/releases/latest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="m7 9 2 2-2 2M11 13h3"/></svg>
+        <span>Linux<small>latest release</small></span>
+      </a>
+      <a class="os" href="https://github.com/xmhrnx/GoPDF/releases/latest">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.4v7.1H3zM11.5 4.3 21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.3z"/></svg>
+        <span>Windows<small>latest release</small></span>
+      </a>
+      <a class="os" href="https://github.com/xmhrnx/GoPDF/releases/latest">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.3 1.2 9.7.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.6-1-2.6-3.8ZM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4Z"/></svg>
+        <span>macOS<small>latest release</small></span>
+      </a>
+    </div>
+    <div class="build-from"><code><span class="c"># or build it yourself (Go, a C compiler and the Giode CLI)</span>
+<span class="p">$ </span>git clone https://github.com/xmhrnx/GoPDF && cd GoPDF
+<span class="p">$ </span>giode run</code></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#"><img src="img/favicon.png" alt="" style="width:26px;height:26px">GoPDF</a>
+    <span>Licensed under the <a href="https://github.com/xmhrnx/GoPDF/blob/main/LICENSE">Apache License 2.0</a>. Rendering by MuPDF (AGPL), editing by pdfcpu.</span>
+    <a href="https://github.com/xmhrnx/GoPDF">github.com/xmhrnx/GoPDF</a>
+  </div>
+</footer>
+
+</body>
+</html>
