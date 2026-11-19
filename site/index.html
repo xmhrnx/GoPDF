@@ -222,6 +222,12 @@ kbd {
 .build-from .c { color: #8b87b3; }
 .build-from .p { color: var(--coral); user-select: none; }
 
+/* Privacy */
+.privacy-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.privacy-grid .card ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 15px; }
+.privacy-grid .card li + li { margin-top: 6px; }
+.privacy-note { color: var(--muted); font-size: 14px; margin: 24px 0 0; }
+
 footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
 .foot { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 28px; }
 .foot a { color: var(--muted); }
@@ -241,6 +247,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
   .top nav a.opt { display: none; }
   .hero p.lead { font-size: 17px; }
   .features { grid-template-columns: 1fr; }
+  .privacy-grid { grid-template-columns: 1fr; }
   .card.wide { grid-column: auto; }
   .oses { grid-template-columns: 1fr; }
   .os { flex-direction: row; justify-content: flex-start; padding: 18px; }
@@ -429,13 +436,54 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
 <span class="p">$ </span>giode run</code></div>
   </div>
 </section>
+
+<section id="privacy" class="hood">
+  <div class="wrap">
+    <p class="eyebrow">Privacy</p>
+    <h2>Your documents stay on your computer.</h2>
+    <p class="section-lead">GoPDF has no account, no analytics, no ads and no tracking, and it never connects to the internet. This policy covers GoPDF from GitHub, the Microsoft Store and the Mac App Store.</p>
+    <div class="privacy-grid">
+      <div class="card">
+        <h3>What GoPDF sends</h3>
+        <ul>
+          <li>Nothing. GoPDF makes no network connections: not to its developer, not to anyone else.</li>
+          <li>Signature checks run offline, on your computer.</li>
+          <li>No usage statistics, crash reports or identifiers are collected.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What it keeps on your computer</h3>
+        <ul>
+          <li>The PDFs you open are read from, and saved to, where you choose; GoPDF keeps no copy.</li>
+          <li>Your settings: the recent files list (paths, page counts, when opened), the last style used for each kind of markup, and your saved signatures.</li>
+          <li>Digital IDs you create or import, as PKCS#12 files locked with your password, in GoPDF's settings folder.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What goes into your files</h3>
+        <ul>
+          <li>Markup, signatures, watermarks and document properties you add are written into the PDF when you save it.</li>
+          <li>A digital signature records the signer's name and, if given, email and organization from the digital ID, with the time, reason and location you enter.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Your control</h3>
+        <ul>
+          <li>Delete saved signatures and digital IDs in GoPDF; uninstalling GoPDF and removing its settings folder removes everything it kept.</li>
+          <li>Questions: open an issue at <a href="https://github.com/xmhrnx/GoPDF/issues">github.com/xmhrnx/GoPDF/issues</a>.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="privacy-note">If this policy changes, the new version will be published on this page. Last updated November 19, 2026.</p>
+  </div>
+</section>
 </main>
 
 <footer>
   <div class="wrap foot">
     <a class="brand" href="#"><img src="img/favicon.png" alt="" style="width:26px;height:26px">GoPDF</a>
     <span>Licensed under the <a href="https://github.com/xmhrnx/GoPDF/blob/main/LICENSE">Apache License 2.0</a>. Rendering by MuPDF (AGPL), editing by pdfcpu.</span>
-    <a href="https://github.com/xmhrnx/GoPDF">github.com/xmhrnx/GoPDF</a>
+    <span><a href="#privacy">Privacy</a> · <a href="https://github.com/xmhrnx/GoPDF">github.com/xmhrnx/GoPDF</a></span>
   </div>
 </footer>
 
