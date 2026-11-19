@@ -3,6 +3,7 @@ package studio
 import (
 	"errors"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,13 +19,19 @@ func isCanceled(err error) bool { return errors.Is(err, giode.ErrCanceled) }
 func baseName(name string) string { return strings.TrimSuffix(name, filepath.Ext(name)) }
 
 // writeFileAtomic writes data next to path and renames it into place, so
-// a failed save never leaves a half-written document.
+// a failed save never leaves a half-written document. Where the folder
+// can't be written but the file can, as in the Mac App Store's sandbox
+// (which grants the opened file, not its folder), it writes the file in
+// place instead.
 func writeFileAtomic(path string, data []byte) error {
 	mode := os.FileMode(0o644)
 	if info, err := os.Stat(path); err == nil {
 		mode = info.Mode().Perm()
 	}
 	tmp, err := os.CreateTemp(filepath.Dir(path), ".gopdf-*")
+	if errors.Is(err, fs.ErrPermission) {
+		return os.WriteFile(path, data, mode)
+	}
 	if err != nil {
 		return err
 	}
