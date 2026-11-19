@@ -3,12 +3,12 @@
 
 [app]
 name = "GoPDF"
-id = "com.example.gopdf"            # reverse-DNS, unique to your app; stores never let it change
+id = "com.xmhrnx.gopdf"             # Apple bundle ID; reverse-DNS, unique to the app: the stores never let it change
 version = "0.1.0"
 build = 1                    # raise for every store upload (giode bump)
 icon = "assets/icon.png"     # 1024x1024, used for the window and every package
 package = "."
-platforms = ["linux", "windows", "macos"]   # what giode build builds with no target named
+platforms = ["linux", "windows", "macos"]   # desktop only: a frameless, keyboard-driven desktop UI, and MuPDF (go-fitz) has no iOS build
 publisher = "GoPDF"
 description = "A fast, native PDF editor: annotate, organize, merge, split and protect PDFs."
 website = "https://xmhrnx.github.io/GoPDF/"
@@ -21,7 +21,24 @@ min_os = 11
 # notary_team_id = "TEAMID"
 
 [macos.plist]
-LSApplicationCategoryType = "public.app-category.productivity"
+LSApplicationCategoryType = "public.app-category.productivity"   # the Mac App Store requires it
+# GoPDF's AES-256 PDF encryption and digital signatures use Go's standard
+# library algorithms (exempt), so App Store Connect asks nothing per upload.
+ITSAppUsesNonExemptEncryption = false
+
+# The Mac App Store build (giode build mas). The release workflow writes
+# the profile from the MACOS_PROFILE_BASE64 secret and points
+# $GIODE_MACOS_STORE_PROFILE at it; keep the file out of git.
+# GoPDF never uses the network: it only needs the files the user opens,
+# drops on the window or saves through the save panel, and the folder
+# Split writes its parts to. Its settings, signatures and digital IDs live
+# in the app's container.
+[macos.store]
+profile = "store.provisionprofile"
+entitlements = ["files.user-selected.read-write"]
+
+[privacy]                         # PrivacyInfo.xcprivacy for the Mac App Store
+tracking = false                  # no analytics, no ads, nothing sent anywhere: no [[privacy.collected]]
 
 [windows]
 arch = "amd64"
@@ -33,6 +50,14 @@ arch = "amd64"
 # per_machine = true         # install for all users into Program Files (asks for admin)
 # desktop_shortcut = true
 # license = "assets/license.txt"
+
+# The Microsoft Store package (giode build msix). The Store signs it.
+[windows.msix]
+# identity_name must match Partner Center → GoPDF → Product identity
+# (Package/Identity/Name) once the name is reserved.
+identity_name = "MehranZahir.GoPDF"
+publisher = "CN=B40E8F57-A7E0-40BB-8E74-5D051D0B578B"
+publisher_display_name = "Mehran Zahiroddini"
 
 [windows.signing]
 # certificate = "codesign.pfx"   # created by giode cert (testing) or bought; password in $GIODE_WINDOWS_CERT_PASS
@@ -48,3 +73,18 @@ extensions = ["pdf"]
 mime_types = ["application/pdf"]
 uti = "com.adobe.pdf"
 role = "editor"
+
+# GitHub Actions (giode ci writes .github/workflows/release.yml from this;
+# rerun `giode ci -f` after changing it). Builds only when a GitHub release
+# is published, and attaches the packages to that release.
+# After regenerating, redo two edits in release.yml by hand: pin
+# `go install github.com/xmhrnx/giode-cli/cmd/giode@v0.1.35-alpha.1`
+# (instead of @latest) and use `go-version-file: go.mod` (instead of
+# `go-version: stable`).
+[ci]
+trigger = "release"
+dispatch = false
+# MuPDF is linked through cgo, and windows.cc is unset (gcc on PATH): build
+# the Windows packages on a Windows runner in MSYS2's MINGW64, where gcc is
+# on PATH, rather than cross-building on Linux with cgo off.
+windows_msys2 = true
